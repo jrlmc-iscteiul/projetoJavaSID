@@ -30,10 +30,10 @@ public class CloudToMongo implements MqttCallback {
 	static String mongo_host = new String();
 	static String mongo_database = new String();
 	
-	static String mongo_collection_temperatura = new String();
-	static String mongo_collection_humidade = new String();
-	static String mongo_collection_luminosidade = new String();
-	static String mongo_collection_movimento = new String();
+	static String mongo_collection_temp = new String();
+	static String mongo_collection_hum = new String();
+	static String mongo_collection_lum = new String();
+	static String mongo_collection_mov = new String();
 
 	public static void main(String[] args) {
 
@@ -46,10 +46,10 @@ public class CloudToMongo implements MqttCallback {
 			mongo_host = p.getProperty("mongo_host");
 			mongo_database = p.getProperty("mongo_database");
 			
-			mongo_collection_temperatura = p.getProperty("mongo_collection_temperatura");
-			mongo_collection_humidade = p.getProperty("mongo_collection_humidade");
-			mongo_collection_luminosidade = p.getProperty("mongo_collection_luminosidade");
-			mongo_collection_movimento = p.getProperty("mongo_collection_movimento");
+			mongo_collection_temp = p.getProperty("mongo_collection_temperatura");
+			mongo_collection_hum = p.getProperty("mongo_collection_humidade");
+			mongo_collection_lum = p.getProperty("mongo_collection_luminosidade");
+			mongo_collection_mov = p.getProperty("mongo_collection_movimento");
 
 		} catch (Exception e) {
 
@@ -78,10 +78,11 @@ public class CloudToMongo implements MqttCallback {
 		mongoClient = new com.mongodb.MongoClient();
 		mongoClient = new MongoClient(new MongoClientURI(mongo_host));
 		db = mongoClient.getDB(mongo_database);
-		mongocolTmp = db.getCollection(mongo_collection_temperatura);
-		mongocolHum = db.getCollection(mongo_collection_humidade);
-		mongocolLum = db.getCollection(mongo_collection_luminosidade);
-		mongocolMov = db.getCollection(mongo_collection_movimento);
+		
+		mongocolTmp = db.getCollection(mongo_collection_temp);
+		mongocolHum = db.getCollection(mongo_collection_hum);
+		mongocolLum = db.getCollection(mongo_collection_lum);
+		mongocolMov = db.getCollection(mongo_collection_mov);
 	}
 
 	@Override
