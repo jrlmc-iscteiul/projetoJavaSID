@@ -32,8 +32,6 @@ public class MedicoesSensores {
 		
 		if(medicao.contains("\"mov\":\"0\""))
 			medicao = medicao.replace("\"mov\":\"0\"", ",");
-		
-		System.out.println(medicao);
 		 
 		 String[] parts = medicao.split(",");
 		
@@ -47,17 +45,23 @@ public class MedicoesSensores {
 		 String[] horaParts = parts[3].split(":");
 		 String hora = new String(horaParts[1] + ":" + horaParts[2] + ":" + horaParts[3]);
 		 
+		 String[] partsLum = parts[4].split(":");
+		 
 		 String[] partsMov = parts[5].split(":");
+		 partsMov[1] = partsMov[1].replace("\"sens\"", "");
 	
 		 MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
 		 MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
+		 MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
 		 MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
 		 
 		 List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
+		 
 		 medicoes.add(msTemp);
 		 medicoes.add(msHum);
+		 medicoes.add(msLum);
 		 medicoes.add(msMov);
-		 
+		
 		 return medicoes;
 	 }
 	 
@@ -67,16 +71,16 @@ public class MedicoesSensores {
 		 String[] dataParts = data.split("/");
 		 String timestamp = new String("\"" + dataParts[2] + "-" + dataParts[1] + "-" + dataParts[0] + " " + hora + "\"");
 		 return timestamp;
-		 
 	 }
 	 
 	 @Override
 	public String toString() {
 		 StringBuilder sb = new StringBuilder();
-		 sb.append("SENSOR: " + tipoSensor + ", VALOR: " + valorMedicao + ", DATA: " + data);
+		 sb.append("{" + tipoSensor + ":" + valorMedicao + ",\"dat\":" + data + "}");
 		 
 		 return sb.toString();
 	}
+	 
 	 
 	 public static void main(String[] args) {
 		 
