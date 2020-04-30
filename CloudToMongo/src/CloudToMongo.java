@@ -130,6 +130,6 @@ public class CloudToMongo implements MqttCallback {
 	public String clean(String message) {
 		return (message.replaceAll("\"\"", "\","));
 
-	}
+	} //alterada
 
 }
