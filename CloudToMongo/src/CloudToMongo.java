@@ -2,6 +2,7 @@ import java.io.FileInputStream;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Stack;
 
 import javax.swing.JOptionPane;
 
@@ -24,6 +25,7 @@ public class CloudToMongo implements MqttCallback {
 	static DBCollection mongocolHum;
 	static DBCollection mongocolLum;
 	static DBCollection mongocolMov;
+	static DBCollection mongocolLixo;
 	
 	static String cloud_server = new String();
 	static String cloud_topic = new String();
@@ -34,6 +36,10 @@ public class CloudToMongo implements MqttCallback {
 	static String mongo_collection_humidade = new String();
 	static String mongo_collection_luminosidade = new String();
 	static String mongo_collection_movimento = new String();
+	static String mongo_collection_msgDescartadas = new String();
+	
+	private Stack<Double> lastHumidades;
+	private Stack<Double> lastTemperaturas;
 
 	public static void main(String[] args) {
 
@@ -50,7 +56,8 @@ public class CloudToMongo implements MqttCallback {
 			mongo_collection_humidade = p.getProperty("mongo_collection_humidade");
 			mongo_collection_luminosidade = p.getProperty("mongo_collection_luminosidade");
 			mongo_collection_movimento = p.getProperty("mongo_collection_movimento");
-
+			mongo_collection_msgDescartadas = p.getProperty("mongo_collection_msgDescartadas");
+			
 		} catch (Exception e) {
 
 			System.out.println("Error reading CloudToMongo.ini file " + e);
@@ -82,8 +89,56 @@ public class CloudToMongo implements MqttCallback {
 		mongocolHum = db.getCollection(mongo_collection_humidade);
 		mongocolLum = db.getCollection(mongo_collection_luminosidade);
 		mongocolMov = db.getCollection(mongo_collection_movimento);
+		mongocolLixo = db.getCollection(mongo_collection_msgDescartadas);
 	}
 
+	public double mediaLast(MedicoesSensores medicao, Stack<Double> last) {
+		String v = medicao.getValorMedicao();
+		double valor = Double.parseDouble(v.replace("\"", ""));
+		last.push(valor);
+		if (last.size() > 30) {
+			last.remove(last.firstElement());
+		}
+		System.out.println(last);
+		double sum = 0;
+		for (int i = 1; i < last.size(); i++) {
+			double variacao = last.get(i) - last.get(i - 1);
+			sum = sum + variacao;
+		}
+		return sum / last.size();
+	}
+
+	public void filtrarTemperatura(MedicoesSensores medicao) {
+	
+		if(mediaLast(medicao, lastTemperaturas) > 0.4 || mediaLast(medicao, lastTemperaturas) < -0.4) {
+			mongocolLixo.insert((DBObject) JSON.parse(clean(medicao.toString())));
+			System.out.println("lixo");
+		} else {
+			mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
+			System.out.println("e");
+		}
+	}
+	
+	public void filtrarHumidade(MedicoesSensores medicao) {
+		String v = medicao.getValorMedicao();
+		double valor = Double.parseDouble(v.replace("\"", ""));
+		if(valor > 100 || valor < 0 || mediaLast(medicao, lastHumidades) > 0.4 || mediaLast(medicao, lastHumidades) < -0.4) {
+			mongocolLixo.insert((DBObject) JSON.parse(clean(medicao.toString())));
+			System.out.println("lixo");
+		} else {
+			mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
+			System.out.println("e");
+		}
+	}
+	
+	public void filtrarMovimento() {
+		
+	}
+	
+	public void filtrarLuminosidade() {
+		
+	}
+	
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
 		try {
@@ -94,23 +149,23 @@ public class CloudToMongo implements MqttCallback {
 			for (MedicoesSensores medicao : medicoes) {
 
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
-					mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+					filtrarTemperatura(medicao);
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(medicao, lastTemperaturas));
 				}
 
 				if (medicao.getTipoSensor().equals("\"hum\"")) {
-					mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+					filtrarHumidade(medicao);
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(medicao, lastHumidades));
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {
 					mongocolLum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+					//JavaMysql.putDataIntoMysql(medicao);
 				}
 
 				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
 					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+					//JavaMysql.putDataIntoMysql(medicao);
 				}
 			}
 
