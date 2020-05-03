@@ -64,7 +64,7 @@ public class teste {
 		double sum = 0;
 		for (int i = 1; i < last.size(); i++) {
 			double variacao = last.get(i) - last.get(i - 1);
-			sum = sum + Math.abs(variacao);
+			sum = sum + variacao;
 		}
 		return sum / last.size();
 	}
