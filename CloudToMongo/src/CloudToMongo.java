@@ -1,4 +1,5 @@
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -92,14 +93,7 @@ public class CloudToMongo implements MqttCallback {
 		mongocolLixo = db.getCollection(mongo_collection_msgDescartadas);
 	}
 
-	public double mediaLast(MedicoesSensores medicao, Stack<Double> last) {
-		String v = medicao.getValorMedicao();
-		double valor = Double.parseDouble(v.replace("\"", ""));
-		last.push(valor);
-		if (last.size() > 30) {
-			last.remove(last.firstElement());
-		}
-		System.out.println(last);
+	private double mediaLast(Stack<Double> last) {
 		double sum = 0;
 		for (int i = 1; i < last.size(); i++) {
 			double variacao = last.get(i) - last.get(i - 1);
@@ -108,27 +102,40 @@ public class CloudToMongo implements MqttCallback {
 		return sum / last.size();
 	}
 
-	public void filtrarTemperatura(MedicoesSensores medicao) {
+	private void inserirNaStack(MedicoesSensores medicao, Stack<Double> last) {
+		String v = medicao.getValorMedicao();
+		double valor = Double.parseDouble(v.replace("\"", ""));
+		last.push(valor);
+		if (last.size() > 12) {
+			last.remove(last.firstElement());
+		}
+		System.out.println(last);
+	}
 	
-		if(mediaLast(medicao, lastTemperaturas) > 0.4 || mediaLast(medicao, lastTemperaturas) < -0.4) {
+	public void filtrarTemperatura(MedicoesSensores medicao) {
+		inserirNaStack(medicao, lastHumidades);
+		List<Double> limites = outliers(lastTemperaturas);
+		String v = medicao.getValorMedicao();
+		double valor = Double.parseDouble(v.replace("\"", ""));
+		if(valor < limites.get(0) || valor > limites.get(1)) {
 			mongocolLixo.insert((DBObject) JSON.parse(clean(medicao.toString())));
 			System.out.println("lixo");
 		} else {
 			mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
-			System.out.println("e");
+			System.out.println("bom");
 		}
 	}
 	
 	public void filtrarHumidade(MedicoesSensores medicao) {
-		String v = medicao.getValorMedicao();
-		double valor = Double.parseDouble(v.replace("\"", ""));
-		if(valor > 100 || valor < 0 || mediaLast(medicao, lastHumidades) > 0.4 || mediaLast(medicao, lastHumidades) < -0.4) {
-			mongocolLixo.insert((DBObject) JSON.parse(clean(medicao.toString())));
-			System.out.println("lixo");
-		} else {
-			mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-			System.out.println("e");
-		}
+//		String v = medicao.getValorMedicao();
+//		double valor = Double.parseDouble(v.replace("\"", ""));
+//		if(valor > 100 || valor < 0 || mediaLast(medicao, lastHumidades) > 0.4 || mediaLast(medicao, lastHumidades) < -0.4) {
+//			mongocolLixo.insert((DBObject) JSON.parse(clean(medicao.toString())));
+//			System.out.println("lixo");
+//		} else {
+//			mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
+//			System.out.println("e");
+//		}
 	}
 	
 	public void filtrarMovimento() {
@@ -137,6 +144,44 @@ public class CloudToMongo implements MqttCallback {
 	
 	public void filtrarLuminosidade() {
 		
+	}
+	
+	private List<Double> outliers(Stack<Double> last) {
+		Stack<Double> copy = new Stack<Double>();
+		copy.addAll(last);
+		Stack<Double> stackOrdenada = ordenarStack(copy);
+		List<Double> limites = new ArrayList<>();
+		double q1 = (stackOrdenada.elementAt(8) + stackOrdenada.elementAt(9))/2;
+		double q3 = (stackOrdenada.elementAt(2) + stackOrdenada.elementAt(3))/2;
+		double aiq = q3 - q1;
+		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),0,2)) {
+			limites.add((q1-aiq*20)+2);
+			limites.add((q3+aiq*20)+2);
+		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),2,5)) {
+			limites.add(q1-aiq*6);
+			limites.add(q3+aiq*6);
+		} else {
+			limites.add(q1-aiq*4);
+			limites.add(q3+aiq*4);
+		}
+		System.out.println(limites);
+		return limites;
+	}
+	
+	private boolean between(double d, int min, int max) {
+	    return (d >= min && d < max);
+	}
+	
+	private Stack<Double> ordenarStack(Stack<Double> in) {
+		Stack<Double> stackOrdenada = new Stack<>();
+		while(!in.isEmpty()) { 
+            double tmp = in.pop(); 
+            while(!stackOrdenada.isEmpty() && stackOrdenada.peek() < tmp)  { 
+            	in.push(stackOrdenada.pop()); 
+            } 
+            stackOrdenada.push(tmp); 
+        }
+		return stackOrdenada;
 	}
 	
 	@Override
@@ -150,12 +195,12 @@ public class CloudToMongo implements MqttCallback {
 
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
 					filtrarTemperatura(medicao);
-					JavaMysql.putDataIntoMysql(medicao, mediaLast(medicao, lastTemperaturas));
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(lastTemperaturas));
 				}
 
 				if (medicao.getTipoSensor().equals("\"hum\"")) {
 					filtrarHumidade(medicao);
-					JavaMysql.putDataIntoMysql(medicao, mediaLast(medicao, lastHumidades));
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(lastHumidades));
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {

@@ -90,11 +90,9 @@ public class teste {
             while(!stackOrdenada.isEmpty() && stackOrdenada.peek() < tmp)  { 
             	in.push(stackOrdenada.pop()); 
             } 
-          
             stackOrdenada.push(tmp); 
         }
 		return stackOrdenada;
-		
 	}
 
 	public static double mediaVariacoes(double valor, Stack<Double> last) {
