@@ -47,7 +47,11 @@ public class FiltrarMensagens {
 	
 	public void filtrarTemperatura(MedicoesSensores medicao) {
 		inserirNaStack(medicao, lastHumidades);
-		List<Double> limites = outliers(lastTemperaturas);
+		List<Double> limites = new ArrayList<>();
+		if(lastTemperaturas.size() > 6 && lastTemperaturas.size()%2 == 0) {
+			limites = outliers(lastTemperaturas, lastTemperaturas.size());
+		}
+		
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
 		if(valor < limites.get(0) || valor > limites.get(1)) {
@@ -79,15 +83,16 @@ public class FiltrarMensagens {
 		
 	}
 	
-	private List<Double> outliers(Stack<Double> last) {
+	public List<Double> outliers(Stack<Double> last, int size) {
 		Stack<Double> copy = new Stack<Double>();
 		copy.addAll(last);
 		Stack<Double> stackOrdenada = ordenarStack(copy);
 		List<Double> limites = new ArrayList<>();
-		double q1 = (stackOrdenada.elementAt(8) + stackOrdenada.elementAt(9))/2;
-		double q3 = (stackOrdenada.elementAt(2) + stackOrdenada.elementAt(3))/2;
+		
+		double q1 = (stackOrdenada.elementAt((size/2)-3) + stackOrdenada.elementAt((size/2)-4))/2;
+		double q3 = (stackOrdenada.elementAt((size/2)+2) + stackOrdenada.elementAt((size/2)+3))/2;
 		double aiq = q3 - q1;
-		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),0,2)) {
+		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
 			limites.add((q1-aiq*20)+2);
 			limites.add((q3+aiq*20)+2);
 		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),2,5)) {

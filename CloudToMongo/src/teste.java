@@ -48,7 +48,7 @@ public class teste {
 
 		
 		System.out.println(normal + " size:" + normal.size());
-		outliers(normal);
+		outliers(normal, normal.size());
 		System.out.println("Media normal: " + mediaVariacoes(21.3, normal));
 		System.out.println("Media com oulier: " + mediaVariacoes(30, normal));
 		System.out.println(normal);
@@ -57,15 +57,16 @@ public class teste {
 	}
 
 	//havia um problema porque se os valores fossem sempre os mesmos ia dar a cena dos outliers ia dar 0 e os limites iam ficar limitados a 1 só valor
-	public static List<Double> outliers(Stack<Double> last) {
+	public static List<Double> outliers(Stack<Double> last, int size) {
 		Stack<Double> copy = new Stack<Double>();
 		copy.addAll(last);
 		Stack<Double> stackOrdenada = ordenarStack(copy);
 		List<Double> limites = new ArrayList<>();
-		double q1 = (stackOrdenada.elementAt(8) + stackOrdenada.elementAt(9))/2;
-		double q3 = (stackOrdenada.elementAt(2) + stackOrdenada.elementAt(3))/2;
+		
+		double q1 = (stackOrdenada.elementAt((size/2)-3) + stackOrdenada.elementAt((size/2)-4))/2;
+		double q3 = (stackOrdenada.elementAt((size/2)+2) + stackOrdenada.elementAt((size/2)+3))/2;
 		double aiq = q3 - q1;
-		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),0,2)) {
+		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
 			limites.add((q1-aiq*20)+2);
 			limites.add((q3+aiq*20)+2);
 		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),2,5)) {
