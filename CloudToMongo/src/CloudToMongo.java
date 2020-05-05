@@ -1,5 +1,4 @@
 import java.io.FileInputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -39,8 +38,10 @@ public class CloudToMongo implements MqttCallback {
 	static String mongo_collection_movimento = new String();
 	static String mongo_collection_msgDescartadas = new String();
 	
-	private Stack<Double> lastHumidades;
-	private Stack<Double> lastTemperaturas;
+	//private Stack<Double> lastHumidades = new Stack<Double>();
+	//private Stack<Double> lastTemperaturas = new Stack<Double>();
+	
+	FiltrarMensagens filtrarMensagens = new FiltrarMensagens(this);
 
 	public static void main(String[] args) {
 
@@ -102,6 +103,7 @@ public class CloudToMongo implements MqttCallback {
 		return sum / last.size();
 	}
 
+	/*
 	private void inserirNaStack(MedicoesSensores medicao, Stack<Double> last) {
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
@@ -182,7 +184,7 @@ public class CloudToMongo implements MqttCallback {
             stackOrdenada.push(tmp); 
         }
 		return stackOrdenada;
-	}
+	} */
 	
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
@@ -194,13 +196,13 @@ public class CloudToMongo implements MqttCallback {
 			for (MedicoesSensores medicao : medicoes) {
 
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
-					filtrarTemperatura(medicao);
-					JavaMysql.putDataIntoMysql(medicao, mediaLast(lastTemperaturas));
+					filtrarMensagens.filtrarTemperatura(medicao);
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(filtrarMensagens.getLastTemperaturas()));
 				}
 
 				if (medicao.getTipoSensor().equals("\"hum\"")) {
-					filtrarHumidade(medicao);
-					JavaMysql.putDataIntoMysql(medicao, mediaLast(lastHumidades));
+					filtrarMensagens.filtrarHumidade(medicao);
+					JavaMysql.putDataIntoMysql(medicao, mediaLast(filtrarMensagens.getLastHumidades()));
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {
