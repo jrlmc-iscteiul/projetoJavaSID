@@ -37,20 +37,29 @@ public class MedicoesSensores {
 		
 		String[] parts = medicao.split(",");
 		System.out.println("medicao 1");
+		
 		String[] partsTemp = parts[0].split(":");
 		String sensorTemp = partsTemp[0].replace("{", "");
-		System.out.println("medicao 2");
+		System.out.println("medicao temp " + sensorTemp);
+		
 		String[] partsHum = parts[1].split(":");
-		System.out.println("medicao 3");
+		System.out.println("medicao hum " + partsHum[1]);
+		
 		String data[] = parts[2].split(":");
-		System.out.println("medicao 4");
+		System.out.println("medicao data "+ data[1]);
+		
 		String[] horaParts = parts[3].split(":");
 		String hora = new String(horaParts[1] + ":" + horaParts[2] + ":" + horaParts[3]);
-		System.out.println("medicao 5: " + parts[4]);
+		System.out.println("medicao hora: " + hora);
+		
 		String[] partsLum = parts[4].split(":");
-		System.out.println("medicao 6: " + partsLum);
-		//String[] partsLum = parts[2].split(":");
-		//partsMov[1] = partsMov[1].replace("\"sens\"", "");
+		if (partsLum[1].contains("\"sens\"")) 
+			partsLum[1] = partsLum[1].replace("\"sens\"", "");
+		System.out.println("medicao lum " + partsLum[1]);
+					
+		String[] partsMov = parts[5].split(":");
+		partsMov[1] = partsMov[1].replace("\"sens\"", "");
+		 
 		System.out.println("medicao 7");
 		MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
 		MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
