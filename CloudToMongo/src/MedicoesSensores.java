@@ -33,37 +33,39 @@ public class MedicoesSensores {
 		if(medicao.contains("\"mov\":\"0\""))
 			medicao = medicao.replace("\"mov\":\"0\"", ",");
 		 
-		 String[] parts = medicao.split(",");
+		System.out.println("medicao: " +  medicao);
 		
-		 String[] partsTemp = parts[0].split(":");
-		 String sensorTemp = partsTemp[0].replace("{", "");
-		 
-		 String[] partsHum = parts[1].split(":");
-	
-		 String data[] = parts[2].split(":");
+		String[] parts = medicao.split(",");
+		System.out.println("medicao 1");
+		String[] partsTemp = parts[0].split(":");
+		String sensorTemp = partsTemp[0].replace("{", "");
+		System.out.println("medicao 2");
+		String[] partsHum = parts[1].split(":");
+		System.out.println("medicao 3");
+		String data[] = parts[2].split(":");
+		System.out.println("medicao 4");
+		String[] horaParts = parts[3].split(":");
+		String hora = new String(horaParts[1] + ":" + horaParts[2] + ":" + horaParts[3]);
+		System.out.println("medicao 5: " + parts[4]);
+		String[] partsLum = parts[4].split(":");
+		System.out.println("medicao 6: " + partsLum);
+		//String[] partsLum = parts[2].split(":");
+		//partsMov[1] = partsMov[1].replace("\"sens\"", "");
+		System.out.println("medicao 7");
+		MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
+		MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
+		MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
+//		MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
+		System.out.println("medicao 8");
+		List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
+		System.out.println("medicao 9");
+		medicoes.add(msTemp);
+		medicoes.add(msHum);
+		medicoes.add(msLum);
+		//medicoes.add(msMov);
 		
-		 String[] horaParts = parts[3].split(":");
-		 String hora = new String(horaParts[1] + ":" + horaParts[2] + ":" + horaParts[3]);
-		 
-		 String[] partsLum = parts[4].split(":");
-		 
-		 String[] partsMov = parts[5].split(":");
-		 partsMov[1] = partsMov[1].replace("\"sens\"", "");
-	
-		 MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
-		 MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
-		 MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
-		 MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
-		 
-		 List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
-		 
-		 medicoes.add(msTemp);
-		 medicoes.add(msHum);
-		 medicoes.add(msLum);
-		 medicoes.add(msMov);
-		
-		 System.out.println(medicoes.toString());
-		 return medicoes;
+		System.out.println(medicoes.toString());
+		return medicoes;
 	 }
 	 
 	 private static String criarTimestamp(String data, String hora) {
@@ -72,6 +74,10 @@ public class MedicoesSensores {
 		 String[] dataParts = data.split("/");
 		 String timestamp = new String("\"" + dataParts[2] + "-" + dataParts[1] + "-" + dataParts[0] + " " + hora + "\"");
 		 return timestamp;
+	 }
+	 
+	 public static Double tirarAspasValorMedicao (MedicoesSensores medicao) {
+		return Double.parseDouble(medicao.getValorMedicao().replace("\"", ""));
 	 }
 	 
 	 @Override
@@ -87,6 +93,8 @@ public class MedicoesSensores {
 		 
 		 List<MedicoesSensores> ms = criarMedicao("{\"tmp\":\"19.30\",\"hum\":\"95.00\",\"dat\":\"19/4/2020\",\"tim\":\"9:50:51\",\"cell\":\"228\"\"mov\":\"0\"\"mov\":\"1\",\"sens\":\"eth\"}");
 		 System.out.println(ms.toString());
+		 
+		 System.out.println(MedicoesSensores.tirarAspasValorMedicao(ms.get(0)));
 	
 	}
 }

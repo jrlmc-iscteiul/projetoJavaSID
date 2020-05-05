@@ -124,15 +124,12 @@ public class CloudToMongo implements MqttCallback {
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {
-				//	mongocolLum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					//JavaMysql.putDataIntoMysql(medicao);
+				//	filtrarMensagens.luminosidade(medicao);
 				}
 
 				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
 					System.out.println("if movimento");
 					filtrarMensagens.movimento(medicao);
-					//mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					//JavaMysql.putDataIntoMysql(medicao);
 				}
 			}
 

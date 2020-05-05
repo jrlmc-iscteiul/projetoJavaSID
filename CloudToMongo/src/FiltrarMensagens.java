@@ -15,11 +15,11 @@ public class FiltrarMensagens {
 	private Stack<Double> lastTemperaturas = new Stack<Double>();
 	
 	private Stack<Double> medicoesLuminosidadeAnteriores = new Stack<Double>();
-	private Double medLuminosidadeLixo = null;
-	private String medLuminosidadelixoData = null;
+	private MedicoesSensores medLuminosidadeLixo = null;
+
 	private boolean haLuminosidade;
 	
-	private MedicoesSensores medicaoMovAnterior = null ;
+	private MedicoesSensores medicaoMovAnterior = null;
 	private boolean haMovimento;
 
 	public FiltrarMensagens(CloudToMongo cloudToMongo) {
@@ -82,7 +82,7 @@ public class FiltrarMensagens {
 //		}
 	}
 
-	public void movimento(MedicoesSensores medicaoMovAtual) {
+	public void movimento (MedicoesSensores medicaoMovAtual) {
 		
 		System.out.println("filtrar msgsss movimento");
 
@@ -91,66 +91,88 @@ public class FiltrarMensagens {
 			System.out.println("movimento anterior null");
 
 			if ((medicaoMovAnterior.getValorMedicao().equals("0") && medicaoMovAtual.getValorMedicao().equals("0"))
-					|| (medicaoMovAnterior.getValorMedicao().equals("1")
-							&& medicaoMovAtual.getValorMedicao().equals("0"))
-					|| (medicaoMovAnterior.getValorMedicao().equals("1")
-							&& medicaoMovAtual.getValorMedicao().equals("1"))) {
+					|| (medicaoMovAnterior.getValorMedicao().equals("1") && medicaoMovAtual.getValorMedicao().equals("0"))
+					|| (medicaoMovAnterior.getValorMedicao().equals("1") && medicaoMovAtual.getValorMedicao().equals("1"))) {
 				haMovimento = false;
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0);		//mudar o double
 				System.out.println("meteu na normal!!!");
 			}
 
-			if (medicaoMovAnterior.getValorMedicao().equals("0") && medicaoMovAtual.getValorMedicao().equals("1")
-					&& !haMovimento) {
+			if (medicaoMovAnterior.getValorMedicao().equals("0") && medicaoMovAtual.getValorMedicao().equals("1") && !haMovimento) {
 				haMovimento = true;
+				
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0);		//mudar o double
+				
 				System.out.println("meteu no lixo!!!");
 
-			} else if (medicaoMovAnterior.getValorMedicao().equals("0") && medicaoMovAtual.getValorMedicao().equals("1")
-					&& haMovimento) {
-				// ir buscar a ultima msg do movimento ao lixo
+			} else if (medicaoMovAnterior.getValorMedicao().equals("0") && medicaoMovAtual.getValorMedicao().equals("1") && haMovimento) {
+				
+				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAnterior.toString())));
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 				
+				JavaMysql.putDataIntoMysql(medicaoMovAnterior, 0);		//mudar valor media
+				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0);			//mudar valor media
+				
+				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medicaoMovAnterior.getData() + "}, {mov:" + medicaoMovAnterior.getValorMedicao() + "}]}")));
 			}
 
 			medicaoMovAnterior = medicaoMovAtual;
 			
-		} else { 		// movimentoAnterior == null
+		} else { 									// movimentoAnterior == null
+			
 			System.out.println("filtrar msgs else");
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
+			JavaMysql.putDataIntoMysql(medicaoMovAtual, 0);		//mudar valor media
+			
 			medicaoMovAnterior = medicaoMovAtual;
 		}
 	}
 
 	public void luminosidade(MedicoesSensores medicaoAtual) {
 		
-		if(medicoesLuminosidadeAnteriores.size() == 3) {
-			
-			medicoesLuminosidadeAnteriores.remove(0);
-			medicoesLuminosidadeAnteriores.add((double) Integer.parseInt(medicaoAtual.getValorMedicao()));
+		Double valorMedLuminosidadeLixo = null;
+		if(medLuminosidadeLixo != null)
+			valorMedLuminosidadeLixo = MedicoesSensores.tirarAspasValorMedicao(medLuminosidadeLixo);
+	
+		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
+		System.out.println(valorMedicaoAtual);
+		
+		if(medicoesLuminosidadeAnteriores.size() == 2) {
 			
 			if( (medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) < Math.abs(10) 
-					&& (medicoesLuminosidadeAnteriores.get(3)-medicoesLuminosidadeAnteriores.get(2)) < Math.abs(10) ) {
-				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicoesLuminosidadeAnteriores.get(0).toString())));
+					&& (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) < Math.abs(10) ) {
+				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media
+				atualizarStackLuminosidade(medicaoAtual);
 			}
 			
-			if( (medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) < 10 
-					&& (medicoesLuminosidadeAnteriores.get(3)-medicoesLuminosidadeAnteriores.get(2)) > 50 && !haLuminosidade) {
+			if( (medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) < 10 
+					&& ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > 50 && !haLuminosidade) ) {
 				
 				haLuminosidade = true;
+				medLuminosidadeLixo = medicaoAtual;
 				
-				medLuminosidadeLixo = medicoesLuminosidadeAnteriores.get(0);
-				medLuminosidadelixoData = medicaoAtual.getData();
+				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media
 				
-				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicoesLuminosidadeAnteriores.get(0).toString())));
+			} else if (haLuminosidade && ((valorMedLuminosidadeLixo-10) <= valorMedicaoAtual)) {
 				
-			} else if (haLuminosidade && ((medLuminosidadeLixo-10) <= medicoesLuminosidadeAnteriores.get(0))) {
-				// ir buscar a ultima msg do luminosidade ao lixo
-				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicoesLuminosidadeAnteriores.get(0).toString())));
-			}
+				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
+				
+				JavaMysql.putDataIntoMysql(medLuminosidadeLixo, 0);		//mudar valor media
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media
+								
+				atualizarStackLuminosidade(medLuminosidadeLixo); 
+				atualizarStackLuminosidade(medicaoAtual);
 			
+			}
+		} else {			//fazer diferente p tamanho 1 ?
+				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media
 		}
-
 	}
 
 	public List<Double> outliers(Stack<Double> last, int size) {
@@ -192,4 +214,10 @@ public class FiltrarMensagens {
 		return stackOrdenada;
 	}
 	
+	
+	private void atualizarStackLuminosidade (MedicoesSensores medicao) {
+		medicoesLuminosidadeAnteriores.remove(0);
+		Double valorMedicao = MedicoesSensores.tirarAspasValorMedicao(medicao);
+		medicoesLuminosidadeAnteriores.add(valorMedicao);
+	}
 }
