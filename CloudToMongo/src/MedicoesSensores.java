@@ -62,6 +62,7 @@ public class MedicoesSensores {
 		 medicoes.add(msLum);
 		 medicoes.add(msMov);
 		
+		 System.out.println(medicoes.toString());
 		 return medicoes;
 	 }
 	 
