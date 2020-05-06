@@ -30,48 +30,39 @@ public class MedicoesSensores {
 	
 	public static List<MedicoesSensores> criarMedicao (String medicao) {
 		
-		if(medicao.contains("\"mov\":\"0\""))
+		if(medicao.contains("\"mov\":\"0\"\"mov\":\"1\""))
 			medicao = medicao.replace("\"mov\":\"0\"", ",");
-		 
-		System.out.println("medicao: " +  medicao);
-		
+		 		
 		String[] parts = medicao.split(",");
-		System.out.println("medicao 1");
 		
 		String[] partsTemp = parts[0].split(":");
 		String sensorTemp = partsTemp[0].replace("{", "");
-		System.out.println("medicao temp " + sensorTemp);
 		
 		String[] partsHum = parts[1].split(":");
-		System.out.println("medicao hum " + partsHum[1]);
 		
 		String data[] = parts[2].split(":");
-		System.out.println("medicao data "+ data[1]);
 		
 		String[] horaParts = parts[3].split(":");
 		String hora = new String(horaParts[1] + ":" + horaParts[2] + ":" + horaParts[3]);
-		System.out.println("medicao hora: " + hora);
 		
 		String[] partsLum = parts[4].split(":");
 		if (partsLum[1].contains("\"sens\"")) 
 			partsLum[1] = partsLum[1].replace("\"sens\"", "");
-		System.out.println("medicao lum " + partsLum[1]);
 					
 		String[] partsMov = parts[5].split(":");
 		partsMov[1] = partsMov[1].replace("\"sens\"", "");
 		 
-		System.out.println("medicao 7");
 		MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
 		MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
 		MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
-//		MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
-		System.out.println("medicao 8");
+		MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
+	
 		List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
-		System.out.println("medicao 9");
+		
 		medicoes.add(msTemp);
 		medicoes.add(msHum);
 		medicoes.add(msLum);
-		//medicoes.add(msMov);
+		medicoes.add(msMov);
 		
 		System.out.println(medicoes.toString());
 		return medicoes;
