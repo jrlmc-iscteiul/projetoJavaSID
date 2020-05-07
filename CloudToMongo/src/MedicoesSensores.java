@@ -30,8 +30,8 @@ public class MedicoesSensores {
 	
 	public static List<MedicoesSensores> criarMedicao (String medicao) {
 		
-		if(medicao.contains("\"mov\":\"0\""))
-			medicao = medicao.replace("\"mov\":\"0\"", ",");
+		//if(medicao.contains("\"mov\":\"0\""))
+		//	medicao = medicao.replace("\"mov\":\"0\"", ",");
 		 
 		 String[] parts = medicao.split(",");
 		
@@ -47,20 +47,20 @@ public class MedicoesSensores {
 		 
 		 String[] partsLum = parts[4].split(":");
 		 
-		 String[] partsMov = parts[5].split(":");
-		 partsMov[1] = partsMov[1].replace("\"sens\"", "");
+		// String[] partsMov = parts[5].split(":");
+		// partsMov[1] = partsMov[1].replace("\"sens\"", "");
 	
 		 MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
 		 MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
 		 MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
-		 MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
+		//  MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
 		 
 		 List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
 		 
 		 medicoes.add(msTemp);
 		 medicoes.add(msHum);
 		 medicoes.add(msLum);
-		 medicoes.add(msMov);
+		// medicoes.add(msMov);
 		
 		 return medicoes;
 	 }

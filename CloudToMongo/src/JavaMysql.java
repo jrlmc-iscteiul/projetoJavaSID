@@ -18,7 +18,7 @@ public class JavaMysql {
 		int maxIdCliente = 0;
 		database_password = "";
 		database_user = "root";
-		database_connection = "jdbc:mysql://localhost/mysqlmaing5";
+		database_connection = "jdbc:mysql://localhost/nova";
 		
 		try {
 			
@@ -40,8 +40,8 @@ public class JavaMysql {
 				maxIdCliente = rs.getInt("Maximo") + 1;
 			}
 */
-			SqlCommando = "Insert into medicoessensores (IDMedicao, ValorMedicao, TipoSensor, DataHoraMedicao) "
-					+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ");" ;
+			SqlCommando = "Insert into medicoessensores (idMedicao, valorMedicao, tipoSensor, dataHoraMedicao, mediaUltimasMedicoes) "
+					+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ", 111"+");" ;
 			
 			result = new Integer(s.executeUpdate(SqlCommando));
 
