@@ -11,47 +11,45 @@ public class teste {
 	public static void main(String[] args) {
 		subida = new Stack<>();
 		normal = new Stack<>();
-		
-//		subida.push((double) 21);
-//		subida.push((double) 21);
-//		subida.push((double) 20.5);
-//		subida.push((double) 21);
-//		subida.push((double) 21.5);
-//		subida.push((double) 22);
-//		subida.push((double) 22.5);
-//		subida.push((double) 23);
-//		subida.push((double) 23.5);
-//		subida.push((double) 24);
-//		subida.push((double) 24.5);
-//		subida.push((double) 25);
-//		subida.push((double) 25.5);
-//		subida.push((double) 26);
-//		subida.push((double) 26.5);
-//
-//		System.out.println(subida + " size:" + subida.size());
-//		System.out.println("Media normal: " + mediaVariacoes(27, subida));
-//		System.out.println("Media com oulier: " + mediaVariacoes(40, subida));
-//		System.out.println(subida + "\n");
+
 		
 		normal.push((double) 21.5);
 		normal.push((double) 21.5);
+		normal.push((double) 21.2);
+		normal.push((double) 22);
 		normal.push((double) 21.5);
+		normal.push((double) 22);
+		normal.push((double) 22);
+		normal.push((double) 22);
+		normal.push((double) 21);
 		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
-		normal.push((double) 21.5);
+//		normal.push((double) 21.9);
+//		normal.push((double) 22);
+//		normal.push((double) 22);
+//		normal.push((double) 21.8);
+//		normal.push((double) 21.9);
+//		normal.push((double) 21.7);
+//		normal.push((double) 21.4);
+//		normal.push((double) 21);
+//		normal.push((double) 21);
+//		normal.push((double) 21.2);
+//		normal.push((double) 21.2);
+//		normal.push((double) 26);
+//		normal.push((double) 22);
+//		normal.push((double) 22);
+//		normal.push((double) 22);
+//		normal.push((double) 21.7);
+//		normal.push((double) 18.9);
+//		normal.push((double) 21.5);
+//		normal.push((double) 22);
+//		normal.push((double) 21.7);
+
 
 		
 		System.out.println(normal + " size:" + normal.size());
 		outliers(normal, normal.size());
-		System.out.println("Media normal: " + mediaVariacoes(21.3, normal));
-		System.out.println("Media com oulier: " + mediaVariacoes(30, normal));
 		System.out.println(normal);
+		System.out.println(5/2);
 
 		
 	}
@@ -62,14 +60,23 @@ public class teste {
 		copy.addAll(last);
 		Stack<Double> stackOrdenada = ordenarStack(copy);
 		List<Double> limites = new ArrayList<>();
-		
-		double q1 = (stackOrdenada.elementAt((size/2)-3) + stackOrdenada.elementAt((size/2)-4))/2;
-		double q3 = (stackOrdenada.elementAt((size/2)+2) + stackOrdenada.elementAt((size/2)+3))/2;
+		int mid1 = size/2;
+		int mid2 = (size / 2) - 1;
+		double q1 = 0;
+		double q3 = 0;
+		if (size % 2 == 0) {
+			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) + stackOrdenada.elementAt(mid1 + (mid1 / 2) + 1)) / 2;
+			q3 = (stackOrdenada.elementAt(mid2 - mid2 / 2) + stackOrdenada.elementAt(mid2 - (mid2 / 2) + 1)) / 2;
+		} else {
+			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2)/2);
+			q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2)/2);
+		}
 		double aiq = q3 - q1;
+		System.out.println(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2));
 		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
-			limites.add((q1-aiq*20)+2);
-			limites.add((q3+aiq*20)+2);
-		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(9),2,5)) {
+			limites.add((q1-aiq*12)-3);
+			limites.add((q3+aiq*12)+3);
+		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),2,5)) {
 			limites.add(q1-aiq*6);
 			limites.add(q3+aiq*6);
 		} else {
@@ -78,6 +85,16 @@ public class teste {
 		}
 		System.out.println(limites);
 		return limites;
+	}
+	
+	private static void inserirNaStack(MedicoesSensores medicao, Stack<Double> last) {
+		String v = medicao.getValorMedicao();
+		double valor = Double.parseDouble(v.replace("\"", ""));
+		last.push(valor);
+		if (last.size() > 30) {
+			last.remove(last.firstElement());
+		}
+		System.out.println(last);
 	}
 	
 	public static boolean between(double d, int min, int max) {
@@ -93,14 +110,11 @@ public class teste {
             } 
             stackOrdenada.push(tmp); 
         }
+		System.out.println(stackOrdenada);
 		return stackOrdenada;
 	}
 
-	public static double mediaVariacoes(double valor, Stack<Double> last) {
-		last.push(valor);
-		if (last.size() > 10) {
-			last.remove(last.firstElement());
-		}
+	private static double mediaLast(Stack<Double> last) {
 		double sum = 0;
 		for (int i = 1; i < last.size(); i++) {
 			double variacao = last.get(i) - last.get(i - 1);
