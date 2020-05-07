@@ -95,23 +95,23 @@ public class CloudToMongo implements MqttCallback {
 
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
 					mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+//					JavaMysql.putDataIntoMysql(medicao);
 				}
 
 				if (medicao.getTipoSensor().equals("\"hum\"")) {
 					mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+//					JavaMysql.putDataIntoMysql(medicao);
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {
 					mongocolLum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
+//					JavaMysql.putDataIntoMysql(medicao);
 				}
 
-				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
-					JavaMysql.putDataIntoMysql(medicao);
-				}
+//				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
+//					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
+//					JavaMysql.putDataIntoMysql(medicao);
+//				}
 			}
 
 		} catch (Exception e) {
