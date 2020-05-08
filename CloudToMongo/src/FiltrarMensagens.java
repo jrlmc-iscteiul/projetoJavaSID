@@ -154,7 +154,6 @@ public class FiltrarMensagens {
 				
 				atualizarStackLuminosidade(medicaoAtual);
 				haLuminosidade = false;
-				
 			}
 			
 			if( (medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) < 10 && ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > 50 && !haLuminosidade) ) {
