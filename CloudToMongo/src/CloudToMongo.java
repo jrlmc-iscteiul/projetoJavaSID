@@ -43,7 +43,7 @@ public class CloudToMongo implements MqttCallback {
 	// private Stack<Double> lastHumidades = new Stack<Double>();
 	// private Stack<Double> lastTemperaturas = new Stack<Double>();
 
-	//FiltrarMensagens filtrarMensagens = new FiltrarMensagens(this);
+	// FiltrarMensagens filtrarMensagens = new FiltrarMensagens(this);
 
 	public static void main(String[] args) {
 
@@ -180,21 +180,23 @@ public class CloudToMongo implements MqttCallback {
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
-						//filtrarMensagens.filtrarTemperatura(medicao);
-						//JavaMysql.putDataIntoMysql(medicao, mediaLast(filtrarMensagens.getLastTemperaturas()));
+						// filtrarMensagens.filtrarTemperatura(medicao);
+						// JavaMysql.putDataIntoMysql(medicao,
+						// mediaLast(filtrarMensagens.getLastTemperaturas()));
 					}
 
 					if (medicao.getTipoSensor().equals("\"hum\"")) {
-						//filtrarMensagens.filtrarHumidade(medicao);
-						//JavaMysql.putDataIntoMysql(medicao, mediaLast(filtrarMensagens.getLastHumidades()));
+						// filtrarMensagens.filtrarHumidade(medicao);
+						// JavaMysql.putDataIntoMysql(medicao,
+						// mediaLast(filtrarMensagens.getLastHumidades()));
 					}
 
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
-						//filtrarMensagens.luminosidade(medicao);
+						// filtrarMensagens.luminosidade(medicao);
 					}
 
 					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-						//filtrarMensagens.movimento(medicao);
+						// filtrarMensagens.movimento(medicao);
 					}
 				}
 			}
