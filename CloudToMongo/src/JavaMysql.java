@@ -7,7 +7,6 @@ public class JavaMysql {
 	static Statement s;
 	static ResultSet rs;
 	
-	
 
 	public static void putDataIntoMysql(MedicoesSensores medicao, double media) {
 		String SqlCommando = new String();

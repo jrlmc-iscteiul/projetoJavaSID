@@ -38,6 +38,8 @@ public class CloudToMongo implements MqttCallback {
 	static String mongo_collection_movimento = new String();
 	static String mongo_collection_msgDescartadas = new String();
 	
+	private int ultimoSeg;
+	
 	//private Stack<Double> lastHumidades = new Stack<Double>();
 	//private Stack<Double> lastTemperaturas = new Stack<Double>();
 	
@@ -186,6 +188,17 @@ public class CloudToMongo implements MqttCallback {
 		return stackOrdenada;
 	} */
 	
+	public boolean verificaDuplicados(MedicoesSensores medicao) {
+		String[] tokens = medicao.getData().split(":");
+		tokens[tokens.length-1] = tokens[tokens.length-1].replace("\"", "");
+		int seg = Integer.parseInt(tokens[tokens.length-1]);
+		if(seg != ultimoSeg) {
+			return true;
+		}
+		ultimoSeg = seg;
+		return false;
+	}
+	
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
 		try {
@@ -194,7 +207,7 @@ public class CloudToMongo implements MqttCallback {
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
 
 			for (MedicoesSensores medicao : medicoes) {
-
+				if(verificaDuplicados(medicao)) {
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
 					filtrarMensagens.filtrarTemperatura(medicao);
 					JavaMysql.putDataIntoMysql(medicao, mediaLast(filtrarMensagens.getLastTemperaturas()));
@@ -213,6 +226,7 @@ public class CloudToMongo implements MqttCallback {
 				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
 					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
 					//JavaMysql.putDataIntoMysql(medicao);
+				}
 				}
 			}
 
