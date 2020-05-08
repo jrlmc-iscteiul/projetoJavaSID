@@ -7,9 +7,8 @@ public class JavaMysql {
 	static Statement s;
 	static ResultSet rs;
 	
-	
 
-	public static void putDataIntoMysql(MedicoesSensores medicao) {
+	public static void putDataIntoMysql(MedicoesSensores medicao, double media) {
 		String SqlCommando = new String();
 		int result;
 		String database_password = new String();
@@ -18,7 +17,7 @@ public class JavaMysql {
 		int maxIdCliente = 0;
 		database_password = "";
 		database_user = "root";
-		database_connection = "jdbc:mysql://localhost/nova";
+		database_connection = "jdbc:mysql://localhost/mysqlmaing5";
 		
 		try {
 			
@@ -40,8 +39,8 @@ public class JavaMysql {
 				maxIdCliente = rs.getInt("Maximo") + 1;
 			}
 */
-			SqlCommando = "Insert into medicoessensores (idMedicao, valorMedicao, tipoSensor, dataHoraMedicao, mediaUltimasMedicoes) "
-					+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ", 111"+");" ;
+			SqlCommando = "Insert into medicoessensores (IDMedicao, ValorMedicao, TipoSensor, DataHoraMedicao, MediaUltimasMedicoes) "
+					+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ", " + media + ");" ;
 			
 			result = new Integer(s.executeUpdate(SqlCommando));
 
@@ -62,11 +61,11 @@ public class JavaMysql {
  
 	
 	public static void main(String[] args) {
-		String s = new String("{\"tmp\":\"19.30\",\"hum\":\"95.00\",\"dat\":\"19/4/2020\",\"tim\":\"9:50:51\",\"cell\":\"228\"\"mov\":\"0\"\"mov\":\"1\",\"sens\":\"eth\"}");
-		List<MedicoesSensores> ms = MedicoesSensores.criarMedicao(s);
-		
-		for (MedicoesSensores medicao : ms) {
-			putDataIntoMysql(medicao);
-		}
+//		String s = new String("{\"tmp\":\"19.30\",\"hum\":\"95.00\",\"dat\":\"19/4/2020\",\"tim\":\"9:50:51\",\"cell\":\"228\"\"mov\":\"0\"\"mov\":\"1\",\"sens\":\"eth\"}");
+//		List<MedicoesSensores> ms = MedicoesSensores.criarMedicao(s);
+//		
+//		for (MedicoesSensores medicao : ms) {
+//			putDataIntoMysql(medicao);
+//		}
 	}
 }
