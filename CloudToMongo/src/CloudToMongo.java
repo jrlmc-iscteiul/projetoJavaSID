@@ -17,7 +17,6 @@ import com.mongodb.util.JSON;
 public class CloudToMongo implements MqttCallback {
 
 	MqttClient mqttclient;
-	private int ultimoSeg;
 	static MongoClient mongoClient;
 	static DB db;
 	
@@ -85,18 +84,6 @@ public class CloudToMongo implements MqttCallback {
 		mongocolMov = db.getCollection(mongo_collection_movimento);
 	}
 
-	
-	public boolean verificaDuplicados(MedicoesSensores medicao) {
-		String[] tokens = medicao.getData().split(":");
-		tokens[tokens.length-1] = tokens[tokens.length-1].replace("\"", "");
-		int seg = Integer.parseInt(tokens[tokens.length-1]);
-		if(seg != ultimoSeg) {
-			return true;
-		}
-		ultimoSeg = seg;
-		return false;
-	}
-	
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
 		try {
@@ -105,7 +92,7 @@ public class CloudToMongo implements MqttCallback {
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
 
 			for (MedicoesSensores medicao : medicoes) {
-				if(verificaDuplicados(medicao)) {
+
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
 					mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
 //					JavaMysql.putDataIntoMysql(medicao);
@@ -125,7 +112,6 @@ public class CloudToMongo implements MqttCallback {
 //					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
 //					JavaMysql.putDataIntoMysql(medicao);
 //				}
-				}
 			}
 
 		} catch (Exception e) {
