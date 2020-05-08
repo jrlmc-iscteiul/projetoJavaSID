@@ -86,16 +86,6 @@ public class CloudToMongo implements MqttCallback {
 	}
 
 	
-	public boolean verificaDuplicados(MedicoesSensores medicao) {
-		String[] tokens = medicao.getData().split(":");
-		tokens[tokens.length-1] = tokens[tokens.length-1].replace("\"", "");
-		int seg = Integer.parseInt(tokens[tokens.length-1]);
-		if(seg != ultimoSeg) {
-			return true;
-		}
-		ultimoSeg = seg;
-		return false;
-	}
 	
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
@@ -105,27 +95,27 @@ public class CloudToMongo implements MqttCallback {
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
 
 			for (MedicoesSensores medicao : medicoes) {
-				if(verificaDuplicados(medicao)) {
+				
 				if (medicao.getTipoSensor().equals("\"tmp\"")) {
 					mongocolTmp.insert((DBObject) JSON.parse(clean(medicao.toString())));
-//					JavaMysql.putDataIntoMysql(medicao);
+					JavaMysql.putDataIntoMysql(medicao);
 				}
 
 				if (medicao.getTipoSensor().equals("\"hum\"")) {
 					mongocolHum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-//					JavaMysql.putDataIntoMysql(medicao);
+					JavaMysql.putDataIntoMysql(medicao);
 				}
 
 				if (medicao.getTipoSensor().equals("\"cell\"")) {
 					mongocolLum.insert((DBObject) JSON.parse(clean(medicao.toString())));
-//					JavaMysql.putDataIntoMysql(medicao);
+					JavaMysql.putDataIntoMysql(medicao);
 				}
 
-//				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-//					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
-//					JavaMysql.putDataIntoMysql(medicao);
-//				}
+				if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
+					mongocolMov.insert((DBObject) JSON.parse(clean(medicao.toString())));
+					JavaMysql.putDataIntoMysql(medicao);
 				}
+
 			}
 
 		} catch (Exception e) {
