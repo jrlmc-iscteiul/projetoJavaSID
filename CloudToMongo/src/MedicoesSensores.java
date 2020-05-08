@@ -74,6 +74,10 @@ public class MedicoesSensores {
 		 return timestamp;
 	 }
 	 
+	 public static Double tirarAspasValorMedicao (MedicoesSensores medicao) {
+		 return Double.parseDouble(medicao.getValorMedicao().replace("\"", ""));
+	 }
+	 
 	 @Override
 	public String toString() {
 		 StringBuilder sb = new StringBuilder();
