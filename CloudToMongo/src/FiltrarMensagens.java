@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -146,7 +145,11 @@ public class FiltrarMensagens {
 		if(medicoesLuminosidadeAnteriores.size() == 2) {
 			System.out.println("vetor tamanho 2");
 			System.out.println("resultado if: " + (medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) + " : " + (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)));
-			if( (medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10) ) {
+			
+			if( ((medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10) ) ||
+			((medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50)) ||
+			((medicoesLuminosidadeAnteriores.get(1)-medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10)) ) {
+				
 				System.out.println("1º if");
 				
 			//	cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
@@ -156,14 +159,14 @@ public class FiltrarMensagens {
 				haLuminosidade = false;
 			}
 			
-			if( (medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) < 10 && ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > 50 && !haLuminosidade) ) {
+			if( (medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) < Math.abs(10) && ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50) && !haLuminosidade) ) {
 				System.out.println("2º if");
 				
 				haLuminosidade = true;
 				medLuminosidadeLixo = medicaoAtual;
 				
 			//	cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media
+			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0);			//mudar valor media	
 				
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo-10) <= valorMedicaoAtual)) {
 				System.out.println("3º if");
@@ -253,20 +256,30 @@ public class FiltrarMensagens {
 			CloudToMongo ctm = new CloudToMongo();
 			FiltrarMensagens fm = new FiltrarMensagens(ctm);
 			
-			 MedicoesSensores ms1 = new MedicoesSensores("\"cell\"", "\"50\"", "\"2020-5-6 9:21:52\"");
+			 MedicoesSensores ms1 = new MedicoesSensores("\"cell\"", "\"381\"", "\"2020-5-6 9:21:52\"");
 			 fm.luminosidade(ms1);
-			 MedicoesSensores ms2 = new MedicoesSensores("\"cell\"", "\"50\"", "\"2020-5-6 9:21:54\"");
+			 MedicoesSensores ms2 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:54\"");
 			 fm.luminosidade(ms2);
-			 MedicoesSensores ms3 = new MedicoesSensores("\"cell\"", "\"90\"", "\"2020-5-6 9:21:56\"");
+			 MedicoesSensores ms3 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:56\"");
 			 fm.luminosidade(ms3);
-			 MedicoesSensores ms4 = new MedicoesSensores("\"cell\"", "\"90\"", "\"2020-5-6 9:21:58\"");
+			 MedicoesSensores ms4 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:58\"");
 			 fm.luminosidade(ms4);
-			/* MedicoesSensores ms5 = new MedicoesSensores("\"cell\"", "\"205\"", "\"2020-5-6 9:22:00\"");
+		     MedicoesSensores ms5 = new MedicoesSensores("\"cell\"", "\"383\"", "\"2020-5-6 9:22:00\"");
 			 fm.luminosidade(ms5);
-			 MedicoesSensores ms6 = new MedicoesSensores("\"cell\"", "\"205\"", "\"2020-5-6 9:22:02\"");
+			 MedicoesSensores ms6 = new MedicoesSensores("\"cell\"", "\"389\"", "\"2020-5-6 9:22:02\"");
 			 fm.luminosidade(ms6);
-			 */
+			 MedicoesSensores ms7 = new MedicoesSensores("\"cell\"", "\"389\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms7);
+			 MedicoesSensores ms8 = new MedicoesSensores("\"cell\"", "\"390\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms8);
+			 MedicoesSensores ms9 = new MedicoesSensores("\"cell\"", "\"389\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms9);
+			 MedicoesSensores ms10 = new MedicoesSensores("\"cell\"", "\"650\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms10);
+			 MedicoesSensores ms11 = new MedicoesSensores("\"cell\"", "\"653\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms11);
+			 MedicoesSensores ms12 = new MedicoesSensores("\"cell\"", "\"651\"", "\"2020-5-6 9:22:02\"");
+			 fm.luminosidade(ms12);
 			 
-		}
-		
+		}		
 }
