@@ -52,8 +52,12 @@ public class FiltrarMensagens {
 		System.out.println(last);
 	}
 
-	public void filtrarTemperatura(MedicoesSensores medicao) {
+	public void temperatura(MedicoesSensores medicao) {
+		System.out.println("entrou temperatura");
+		
 		inserirNaStack(medicao, lastHumidades);
+		System.out.println(lastHumidades.toString());
+		
 		List<Double> limites = new ArrayList<>();
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
@@ -259,9 +263,9 @@ public class FiltrarMensagens {
 		CloudToMongo ctm = new CloudToMongo();
 		FiltrarMensagens fm = new FiltrarMensagens(ctm);
 
-		MedicoesSensores ms1 = new MedicoesSensores("\"cell\"", "\"381\"", "\"2020-5-6 9:21:52\"");
-		fm.luminosidade(ms1);
-		MedicoesSensores ms2 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:54\"");
+		MedicoesSensores ms1 = new MedicoesSensores("\"tmp\"", "\"24.00\"", "\"2020-5-6 9:21:52\"");
+		fm.temperatura(ms1);
+	/*	MedicoesSensores ms2 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:54\"");
 		fm.luminosidade(ms2);
 		MedicoesSensores ms3 = new MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:56\"");
 		fm.luminosidade(ms3);
@@ -283,6 +287,6 @@ public class FiltrarMensagens {
 		fm.luminosidade(ms11);
 		MedicoesSensores ms12 = new MedicoesSensores("\"cell\"", "\"451\"", "\"2020-5-6 9:22:02\"");
 		fm.luminosidade(ms12);
-
+*/
 	}
 }

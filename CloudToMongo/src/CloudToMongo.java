@@ -180,7 +180,7 @@ public class CloudToMongo implements MqttCallback {
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
-						filtrarMensagens.filtrarTemperatura(medicao);
+						filtrarMensagens.temperatura(medicao);
 					//	JavaMysql.putDataIntoMysql(medicao,
 					//	mediaLast(filtrarMensagens.getLastTemperaturas()));
 					}
@@ -192,11 +192,11 @@ public class CloudToMongo implements MqttCallback {
 					}
 
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
-						filtrarMensagens.luminosidade(medicao);
+					//	filtrarMensagens.luminosidade(medicao);
 					}
 
 					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-						filtrarMensagens.movimento(medicao);
+					//	filtrarMensagens.movimento(medicao);
 					}
 				}
 			}
