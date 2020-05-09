@@ -59,6 +59,7 @@ public class FiltrarMensagens {
 		System.out.println(lastTemperaturas.toString());
 
 		if (lastTemperaturas.size() >= 6) {
+			System.out.println("entrou if tamanho 6");
 			List<Double> limites = new ArrayList<>();
 			limites = outliers(lastTemperaturas, lastTemperaturas.size());
 
@@ -77,7 +78,7 @@ public class FiltrarMensagens {
 		} else {
 			System.out.println("meteu: " + medicao.toString());
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			JavaMysql.putDataIntoMysql(medicao, media);
+			JavaMysql.putDataIntoMysql(medicao, media30UltimasMedicoes(lastTemperaturas));
 			
 		}
 	}
@@ -285,6 +286,22 @@ public class FiltrarMensagens {
 		}
 	}
 
+private Double media30UltimasMedicoes(Stack<Double> medicoesAnteriores) {
+			
+		double sum = 0;
+		
+		if(medicoesAnteriores.size() == 1) {
+			return 0.0;
+		}
+		
+		for (int i = 1; i < medicoesAnteriores.size(); i++) {
+			
+			double variacao = medicoesAnteriores.get(i) - medicoesAnteriores.get(i - 1);
+			sum = sum + variacao;
+		}
+		return sum/medicoesAnteriores.size();	
+	}
+	
 	public static void main(String[] args) {
 
 		CloudToMongo ctm = new CloudToMongo();
@@ -292,13 +309,14 @@ public class FiltrarMensagens {
 
 		MedicoesSensores ms1 = new MedicoesSensores("\"tmp\"", "\"24.00\"", "\"2020-5-6 9:21:52\"");
 		fm.temperatura(ms1);
-		/*
-		 * MedicoesSensores ms2 = new MedicoesSensores("\"cell\"", "\"382\"",
-		 * "\"2020-5-6 9:21:54\""); fm.luminosidade(ms2); MedicoesSensores ms3 = new
-		 * MedicoesSensores("\"cell\"", "\"382\"", "\"2020-5-6 9:21:56\"");
-		 * fm.luminosidade(ms3); MedicoesSensores ms4 = new MedicoesSensores("\"cell\"",
-		 * "\"382\"", "\"2020-5-6 9:21:58\""); fm.luminosidade(ms4); MedicoesSensores
-		 * ms5 = new MedicoesSensores("\"cell\"", "\"383\"", "\"2020-5-6 9:22:00\"");
+		
+		MedicoesSensores ms2 = new MedicoesSensores("\"tmp\"", "\"24.00\"","\"2020-5-6 9:21:54\""); 
+		fm.temperatura(ms2); 
+		MedicoesSensores ms3 = new MedicoesSensores("\"tmp\"", "\"24.30\"", "\"2020-5-6 9:21:56\"");
+		fm.temperatura(ms3); 
+		MedicoesSensores ms4 = new MedicoesSensores("\"tmp\"","\"24.50\"", "\"2020-5-6 9:21:58\"");
+		fm.temperatura(ms4); 
+	/*	MedicoesSensores ms5 = new MedicoesSensores("\"cell\"", "\"383\"", "\"2020-5-6 9:22:00\"");
 		 * fm.luminosidade(ms5); MedicoesSensores ms6 = new MedicoesSensores("\"cell\"",
 		 * "\"389\"", "\"2020-5-6 9:22:02\""); fm.luminosidade(ms6); MedicoesSensores
 		 * ms7 = new MedicoesSensores("\"cell\"", "\"389\"", "\"2020-5-6 9:22:02\"");
