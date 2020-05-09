@@ -206,18 +206,19 @@ public class FiltrarMensagens {
 		int mid2 = (size / 2) - 1;
 		double q1 = 0;
 		double q3 = 0;
-		if (size > 8) {
-			if (size % 2 == 0) {
-				q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) + stackOrdenada.elementAt(mid1 + (mid1 / 2) + 1)) / 2;
-				q3 = (stackOrdenada.elementAt(mid2 - mid2 / 2) + stackOrdenada.elementAt(mid2 - (mid2 / 2) + 1)) / 2;
-			} else {
-				q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) / 2);
-				q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2) / 2);
-			}
-		} else {
-			q1 = last.firstElement();
-			q3 = last.firstElement();
+		if(size < 8) {
+			limites.add(last.firstElement()-3);
+			limites.add(last.firstElement()+3);
+			return limites;
 		}
+		if (size % 2 == 0) {
+			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) + stackOrdenada.elementAt(mid1 + (mid1 / 2) + 1)) / 2;
+			q3 = (stackOrdenada.elementAt(mid2 - mid2 / 2) + stackOrdenada.elementAt(mid2 - (mid2 / 2) + 1)) / 2;
+		} else {
+			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) / 2);
+			q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2) / 2);
+		}
+
 		double aiq = q3 - q1;
 		System.out.println(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2));
 		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
