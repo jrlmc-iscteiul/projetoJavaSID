@@ -17,7 +17,7 @@ public class JavaMysql {
 		int maxIdCliente = 0;
 		database_password = "";
 		database_user = "root";
-		database_connection = "jdbc:mysql://localhost/nova";
+		database_connection = "jdbc:mysql://localhost/nova2";
 		
 		try {
 			

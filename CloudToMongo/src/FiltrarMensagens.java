@@ -104,7 +104,7 @@ public class FiltrarMensagens {
 				haMovimento = false;
 
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-			//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar o double
+				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar o double
 
 				medicaoMovAnterior = medicaoMovAtual;
 			}
@@ -122,8 +122,8 @@ public class FiltrarMensagens {
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovLixo.toString())));
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 
-			//	JavaMysql.putDataIntoMysql(medicaoMovLixo, 0); // mudar valor media
-			//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
+				JavaMysql.putDataIntoMysql(medicaoMovLixo, 0); // mudar valor media
+				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
 
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:"
 						+ medicaoMovLixo.getData() + "}, {mov:" + medicaoMovLixo.getValorMedicao() + "}]}")));
@@ -134,7 +134,7 @@ public class FiltrarMensagens {
 		} else { // movimentoAnterior == null
 
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-		//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
+			JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
 
 			medicaoMovAnterior = medicaoMovAtual;
 		}
@@ -161,8 +161,8 @@ public class FiltrarMensagens {
 				
 				System.out.println("1º if");
 
-				//cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				//JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 				atualizarStackLuminosidade(medicaoAtual);
 				haLuminosidade = false;
@@ -176,18 +176,18 @@ public class FiltrarMensagens {
 				haLuminosidade = true;
 				medLuminosidadeLixo = medicaoAtual;
 
-				//cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo - 10) <= valorMedicaoAtual)) {
 				
 				System.out.println("3º if");
 				
-				//cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				//cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
+				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
 
-			//	JavaMysql.putDataIntoMysql(medLuminosidadeLixo, 0); // mudar valor media
-			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+				JavaMysql.putDataIntoMysql(medLuminosidadeLixo, 0); // mudar valor media
+				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 				atualizarStackLuminosidade(medLuminosidadeLixo);
 				atualizarStackLuminosidade(medicaoAtual);
@@ -196,8 +196,8 @@ public class FiltrarMensagens {
 			}
 		} else { 
 			
-		//	cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-		//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); //mudar valor media
+			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+			JavaMysql.putDataIntoMysql(medicaoAtual, 0); //mudar valor media
 			atualizarStackLuminosidade(medicaoAtual);
 		}
 	}
