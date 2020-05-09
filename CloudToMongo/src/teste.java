@@ -46,10 +46,7 @@ public class teste {
 
 
 		
-		System.out.println(normal + " size:" + normal.size());
-		outliers(normal, normal.size());
-		System.out.println(normal);
-		System.out.println(5/2);
+	System.out.println(3/2);
 
 		
 	}

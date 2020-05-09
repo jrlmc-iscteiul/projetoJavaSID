@@ -176,7 +176,7 @@ public class CloudToMongo implements MqttCallback {
 			System.out.println(c.toString());
 
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
-
+			
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
