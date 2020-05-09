@@ -12,6 +12,8 @@ public class FiltrarMensagens {
 
 	private Stack<Double> lastHumidades = new Stack<Double>();
 	private Stack<Double> lastTemperaturas = new Stack<Double>();
+	private List<Double> humLimites = new ArrayList<Double>();
+	private List<Double> tempLimites = new ArrayList<Double>();
 
 	private Stack<Double> medicoesLuminosidadeAnteriores = new Stack<Double>();
 	private MedicoesSensores medLuminosidadeLixo = null;
@@ -53,7 +55,6 @@ public class FiltrarMensagens {
 	}
 
 	public void filtrarTemperatura(MedicoesSensores medicao) {
-		inserirNaStack(medicao, lastTemperaturas);
 		List<Double> limites = outliers(lastTemperaturas, lastTemperaturas.size());
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
@@ -63,20 +64,21 @@ public class FiltrarMensagens {
 		} else {
 			inserirNaStack(medicao, lastTemperaturas);
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
+			inserirNaStack(medicao, lastTemperaturas);
 			System.out.println("bom");
 		}
 	}
 
 	public void filtrarHumidade(MedicoesSensores medicao) {
-		inserirNaStack(medicao, lastHumidades);
-		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
-		if(valor < limites.get(0) || valor > limites.get(1) || valor < 0 || valor > 100) {
+		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
+		if(valor < humLimites.get(0) || valor > humLimites.get(1) || valor < 0 || valor > 100) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			System.out.println("lixo");
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
+			inserirNaStack(medicao, lastHumidades);
 			System.out.println("e");
 		}
 	}
@@ -218,7 +220,6 @@ public class FiltrarMensagens {
 			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) / 2);
 			q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2) / 2);
 		}
-
 		double aiq = q3 - q1;
 		System.out.println(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2));
 		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
