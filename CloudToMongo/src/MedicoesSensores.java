@@ -30,7 +30,7 @@ public class MedicoesSensores {
 	
 	public static List<MedicoesSensores> criarMedicao (String medicao) {
 		
-		if(medicao.contains("\"mov\":\"0\""))
+		if(medicao.contains("\"mov\":\"0\"\"mov\":\"1\""))
 			medicao = medicao.replace("\"mov\":\"0\"", ",");
 		 
 		 String[] parts = medicao.split(",");
@@ -62,16 +62,16 @@ public class MedicoesSensores {
 		 medicoes.add(msLum);
 		 medicoes.add(msMov);
 		
-		 System.out.println("MEDICOES: " + medicoes.toString());
 		 return medicoes;
 	 }
 	 
 	 private static String criarTimestamp(String data, String hora) {
 		 data = data.replace("\"", "");
 		 hora = hora.replace("\"", "");
+		
 		 String[] dataParts = data.split("/");
 		 String timestamp = new String("\"" + dataParts[2] + "-" + dataParts[1] + "-" + dataParts[0] + " " + hora + "\"");
-		 System.out.println(timestamp);
+		
 		 return timestamp;
 	 }
 	 

@@ -81,6 +81,8 @@ public class FiltrarMensagens {
 
 	public void movimento(MedicoesSensores medicaoMovAtual) {
 
+		System.out.println("entrou movimento");
+		
 		Double valorMedicaoMovAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoMovAtual);
 		Double valorMedicaoMovAnterior;
 
@@ -95,7 +97,7 @@ public class FiltrarMensagens {
 				haMovimento = false;
 
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar o double
+			//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar o double
 
 				medicaoMovAnterior = medicaoMovAtual;
 			}
@@ -113,8 +115,8 @@ public class FiltrarMensagens {
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovLixo.toString())));
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 
-				JavaMysql.putDataIntoMysql(medicaoMovLixo, 0); // mudar valor media
-				JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
+			//	JavaMysql.putDataIntoMysql(medicaoMovLixo, 0); // mudar valor media
+			//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
 
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:"
 						+ medicaoMovLixo.getData() + "}, {mov:" + medicaoMovLixo.getValorMedicao() + "}]}")));
@@ -125,7 +127,7 @@ public class FiltrarMensagens {
 		} else { // movimentoAnterior == null
 
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-			JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
+		//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
 
 			medicaoMovAnterior = medicaoMovAtual;
 		}
@@ -133,7 +135,7 @@ public class FiltrarMensagens {
 
 	public void luminosidade(MedicoesSensores medicaoAtual) {
 
-		System.out.println("vetor medicoes: " + medicoesLuminosidadeAnteriores.toString());
+		System.out.println("entrou luminosidade");
 
 		Double valorMedLuminosidadeLixo = null;
 		if (medLuminosidadeLixo != null)
@@ -142,10 +144,6 @@ public class FiltrarMensagens {
 		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
 
 		if (medicoesLuminosidadeAnteriores.size() == 2) {
-			System.out.println("vetor tamanho 2");
-			System.out.println(
-					"resultado if: " + (medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0))
-							+ " : " + (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)));
 
 			if (((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10)
 					&& (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10))
@@ -154,10 +152,8 @@ public class FiltrarMensagens {
 					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50)
 							&& (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10))) {
 
-				System.out.println("1º if");
-
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+				//JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 				atualizarStackLuminosidade(medicaoAtual);
 				haLuminosidade = false;
@@ -166,23 +162,21 @@ public class FiltrarMensagens {
 			if ((medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) < Math.abs(10)
 					&& ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50)
 							&& !haLuminosidade)) {
-				System.out.println("2º if");
-
+			
 				haLuminosidade = true;
 				medLuminosidadeLixo = medicaoAtual;
 
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo - 10) <= valorMedicaoAtual)) {
-				System.out.println("3º if");
-
+				
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:"
 						+ medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
 
-				JavaMysql.putDataIntoMysql(medLuminosidadeLixo, 0); // mudar valor media
-				JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
+			//	JavaMysql.putDataIntoMysql(medLuminosidadeLixo, 0); // mudar valor media
+			//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); // mudar valor media
 
 				atualizarStackLuminosidade(medLuminosidadeLixo);
 				atualizarStackLuminosidade(medicaoAtual);
@@ -190,11 +184,10 @@ public class FiltrarMensagens {
 				haLuminosidade = false;
 
 			}
-		} else { // fazer diferente p tamanho 1 ?
-			System.out.println("vetor tamanho não é 2");
-
+		} else { 
+			
 			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-			JavaMysql.putDataIntoMysql(medicaoAtual, 0); //mudar valor media
+		//	JavaMysql.putDataIntoMysql(medicaoAtual, 0); //mudar valor media
 			atualizarStackLuminosidade(medicaoAtual);
 		}
 	}
