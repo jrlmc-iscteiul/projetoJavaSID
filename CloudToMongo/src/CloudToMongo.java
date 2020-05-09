@@ -181,14 +181,14 @@ public class CloudToMongo implements MqttCallback {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
 						filtrarMensagens.filtrarTemperatura(medicao);
-					//	JavaMysql.putDataIntoMysql(medicao,
-					//	mediaLast(filtrarMensagens.getLastTemperaturas()));
+						JavaMysql.putDataIntoMysql(medicao,
+						mediaLast(filtrarMensagens.getLastTemperaturas()));
 					}
 
 					if (medicao.getTipoSensor().equals("\"hum\"")) {
-					//	filtrarMensagens.filtrarHumidade(medicao);
-					//	JavaMysql.putDataIntoMysql(medicao,
-					//	mediaLast(filtrarMensagens.getLastHumidades()));
+						filtrarMensagens.filtrarHumidade(medicao);
+						JavaMysql.putDataIntoMysql(medicao,
+						mediaLast(filtrarMensagens.getLastHumidades()));
 					}
 
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
