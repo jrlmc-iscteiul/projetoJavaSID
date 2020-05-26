@@ -29,6 +29,8 @@ public class MedicoesSensores {
 
 	public static List<MedicoesSensores> criarMedicao(String medicao) {
 
+		List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
+		
 		if (medicao.contains("\"mov\":\"0\"\"mov\":\"1\""))
 			medicao = medicao.replace("\"mov\":\"0\"", ",");
 
@@ -46,20 +48,26 @@ public class MedicoesSensores {
 
 		String[] partsLum = parts[4].split(":");
 
-		String[] partsMov = parts[5].split(":");
-		partsMov[1] = partsMov[1].replace("\"sens\"", "");
-
+		if(medicao.contains("mov")) {
+			String[] partsMov = parts[5].split(":");
+			partsMov[1] = partsMov[1].replace("\"sens\"", "");
+			MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
+			medicoes.add(msMov);
+		} else {
+			partsLum[1] = partsLum[1].replace("\"sens\"", "");
+		}
+		
 		MedicoesSensores msTemp = new MedicoesSensores(sensorTemp, partsTemp[1], criarTimestamp(data[1], hora));
 		MedicoesSensores msHum = new MedicoesSensores(partsHum[0], partsHum[1], criarTimestamp(data[1], hora));
 		MedicoesSensores msLum = new MedicoesSensores(partsLum[0], partsLum[1], criarTimestamp(data[1], hora));
-		MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
+	//	MedicoesSensores msMov = new MedicoesSensores(partsMov[0], partsMov[1], criarTimestamp(data[1], hora));
 
-		List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
+	//	List<MedicoesSensores> medicoes = new ArrayList<MedicoesSensores>();
 
 		medicoes.add(msTemp);
 		medicoes.add(msHum);
 		medicoes.add(msLum);
-		medicoes.add(msMov);
+	//	medicoes.add(msMov);
 
 		return medicoes;
 	}
@@ -88,8 +96,8 @@ public class MedicoesSensores {
 	}
 
 	public static void main(String[] args) {
-//		List<MedicoesSensores> ms = criarMedicao("{\"tmp\":\"19.30\",\"hum\":\"95.00\",\"dat\":\"19/4/2020\",\"tim\":\"9:50:51\",\"cell\":\"228\"\"mov\":\"0\"\"mov\":\"1\",\"sens\":\"eth\"}");
-//		System.out.println(ms.toString());
+		List<MedicoesSensores> ms = criarMedicao("{\"tmp\":\"27.40\",\"hum\":\"94.10\",\"dat\":\"26/5/2020\",\"tim\":\"17:1:2\",\"cell\":\"11\"\"sens\":\"eth\"}");
+		System.out.println(ms.toString());
 
 	}
 

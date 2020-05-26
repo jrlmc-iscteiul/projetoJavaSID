@@ -14,7 +14,7 @@ public class JavaMysql {
 		String database_password = new String();
 		String database_user = new String();
 		String database_connection = new String();
-		int maxIdCliente = 0;
+	
 		database_password = "";
 		database_user = "root";
 		database_connection = "jdbc:mysql://localhost/mysql_main_g5";
@@ -30,27 +30,14 @@ public class JavaMysql {
 			System.out.println("Server down, unable to make the connection. ");
 		}
 		
-		//SqlCommando = "Select max(Numero_Cliente) as  Maximo from cliente;";
-		
 		try {
 			s = conn.createStatement();
-		/*	rs = s.executeQuery(SqlCommando);
-			while (rs.next()) {
-				maxIdCliente = rs.getInt("Maximo") + 1;
-			}
-*/
+		
 			SqlCommando = "Insert into medicoessensores (IDMedicao, ValorMedicao, TipoSensor, DataHoraMedicao, MediaUltimasMedicoes) "
 					+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ", " + media + ");" ;
 			
 			result = new Integer(s.executeUpdate(SqlCommando));
-
-		//	SqlCommando = "Select Numero_Cliente, Nome_Cliente From Cliente;";
-		//	rs = s.executeQuery(SqlCommando);
 			
-		/*	while (rs.next()) {
-				System.out.println(rs.getString("Nome_Cliente"));
-				System.out.println(rs.getInt("Numero_Cliente"));
-			} */
 			s.close();
 			
 		} catch (Exception e) {
