@@ -111,21 +111,17 @@ public class CloudToMongo implements MqttCallback {
 			
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
-					if (medicao.getTipoSensor().equals("\"tmp\"")) {
+					if (medicao.getTipoSensor().equals("\"tmp\"")) 
 						filtrarMensagens.filtrarTemperatura(medicao);
-					}
-
-					if (medicao.getTipoSensor().equals("\"hum\"")) {
+					
+					if (medicao.getTipoSensor().equals("\"hum\"")) 
 						filtrarMensagens.filtrarHumidade(medicao);
-					}
-
-					if (medicao.getTipoSensor().equals("\"cell\"")) {
-//						filtrarMensagens.luminosidade(medicao);
-					}
-
-					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-//						filtrarMensagens.movimento(medicao);
-					}
+					
+					if (medicao.getTipoSensor().equals("\"cell\"")) 
+						filtrarMensagens.luminosidade(medicao);
+					
+					if (medicao.getTipoSensor().contentEquals("\"mov\"")) 
+						filtrarMensagens.movimento(medicao);
 				}
 			}
 
