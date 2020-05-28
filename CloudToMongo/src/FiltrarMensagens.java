@@ -62,12 +62,12 @@ public class FiltrarMensagens {
 		System.out.println("VALOR TEMP: " +  valor);
 		if(valor < limites.get(0) || valor > limites.get(1)) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			System.out.println("lixo");
+			System.out.println("temperatura lixo");
 		} else {
 			inserirNaStack(medicao, lastTemperaturas);
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastTemperaturas);
-			System.out.println("bom");
+			System.out.println("temperatura bom");
 		}
 	}
 
@@ -78,8 +78,10 @@ public class FiltrarMensagens {
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
 		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
+		
 		if(valor < limites.get(0) || valor > limites.get(1) || valor < 0 || valor > 100) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
+			JavaMysql.putDataIntoMysql(medicao, );
 			System.out.println("lixo");
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
