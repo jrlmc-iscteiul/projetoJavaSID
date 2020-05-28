@@ -81,7 +81,7 @@ public class FiltrarMensagens {
 		
 		if(valor < limites.get(0) || valor > limites.get(1) || valor < 0 || valor > 100) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			JavaMysql.putDataIntoMysql(medicao, );
+			JavaMysql.putDataIntoMysql(medicao, cloudToMongo.mediaLast(getLastTemperaturas()));
 			System.out.println("lixo");
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
