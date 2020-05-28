@@ -59,15 +59,16 @@ public class FiltrarMensagens {
 		List<Double> limites = outliers(lastTemperaturas, lastTemperaturas.size());
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
-		System.out.println("VALOR TEMP: " +  valor);
+		
 		if(valor < limites.get(0) || valor > limites.get(1)) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			System.out.println("temperatura lixo");
+			System.out.println("lixo");
+			
 		} else {
-			inserirNaStack(medicao, lastTemperaturas);
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastTemperaturas);
-			System.out.println("temperatura bom");
+			JavaMysql.putDataIntoMysql(medicao, mediaLast(lastTemperaturas));
+			System.out.println("bom");
 		}
 	}
 
@@ -81,11 +82,12 @@ public class FiltrarMensagens {
 		
 		if(valor < limites.get(0) || valor > limites.get(1) || valor < 0 || valor > 100) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			JavaMysql.putDataIntoMysql(medicao, cloudToMongo.mediaLast(getLastTemperaturas()));
+			
 			System.out.println("lixo");
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastHumidades);
+			JavaMysql.putDataIntoMysql(medicao, mediaLast(lastHumidades));
 			System.out.println("e");
 		}
 	}
@@ -138,7 +140,7 @@ public class FiltrarMensagens {
 		} else { // movimentoAnterior == null
 
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-		//	JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
+			JavaMysql.putDataIntoMysql(medicaoMovAtual, 0); // mudar valor media
 
 			medicaoMovAnterior = medicaoMovAtual;
 		}
@@ -216,30 +218,31 @@ public class FiltrarMensagens {
 		double q1 = 0;
 		double q3 = 0;
 		if(size < 8) {
-			limites.add(last.firstElement()-3);
-			limites.add(last.firstElement()+3);
+			limites.add(last.lastElement()-3);
+			limites.add(last.lastElement()+3);
+			System.out.println("Limites: " + limites);
 			return limites;
 		}
 		if (size % 2 == 0) {
 			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) + stackOrdenada.elementAt(mid1 + (mid1 / 2) + 1)) / 2;
-			q3 = (stackOrdenada.elementAt(mid2 - mid2 / 2) + stackOrdenada.elementAt(mid2 - (mid2 / 2) + 1)) / 2;
+			q3 = (stackOrdenada.elementAt(mid2 - (mid2 / 2) - 1) + stackOrdenada.elementAt(mid2 - (mid2 / 2) - 2)) / 2;
 		} else {
-			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2) / 2);
-			q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2) / 2);
+			q1 = (stackOrdenada.elementAt(mid1 + mid1 / 2));
+			q3 = (stackOrdenada.elementAt(mid1 - mid1 / 2));
 		}
 		double aiq = q3 - q1;
 		System.out.println(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2));
 		if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),0,2)) {
-			limites.add((q1-aiq*12)-3);
-			limites.add((q3+aiq*12)+3);
+			limites.add((q1-aiq*7)-2);
+			limites.add((q3+aiq*7)+2);
 		} else if(between(stackOrdenada.elementAt(2) - stackOrdenada.elementAt(size-2),2,5)) {
-			limites.add(q1-aiq*6);
-			limites.add(q3+aiq*6);
+			limites.add(q1-aiq*5);
+			limites.add(q3+aiq*5);
 		} else {
-			limites.add(q1-aiq*4);
-			limites.add(q3+aiq*4);
+			limites.add(q1-aiq*3);
+			limites.add(q3+aiq*3);
 		}
-		System.out.println(limites);
+		System.out.println("Limites: " + limites);
 		return limites;
 	}
 
@@ -270,6 +273,15 @@ public class FiltrarMensagens {
 		}
 	}
 
+	private double mediaLast(Stack<Double> last) {
+		double sum = 0;
+		for (int i = 1; i < last.size(); i++) {
+			double variacao = last.get(i) - last.get(i - 1);
+			sum = sum + variacao;
+		}
+		return sum / last.size();
+	}
+	
 	public static void main(String[] args) {
 
 		CloudToMongo ctm = new CloudToMongo();
@@ -277,7 +289,6 @@ public class FiltrarMensagens {
 
 		MedicoesSensores ms1 = new MedicoesSensores("\"tmp\"", "\"24.00\"", "\"2020-5-6 9:21:52\"");
 		fm.filtrarTemperatura(ms1);
-		
 		MedicoesSensores ms2 = new MedicoesSensores("\"tmp\"", "\"24.00\"","\"2020-5-6 9:21:54\""); 
 		fm.filtrarTemperatura(ms2); 
 		MedicoesSensores ms3 = new MedicoesSensores("\"tmp\"", "\"24.30\"", "\"2020-5-6 9:21:56\"");
@@ -294,8 +305,8 @@ public class FiltrarMensagens {
 		 fm.filtrarTemperatura(ms8); 
 		 MedicoesSensores ms9 = new MedicoesSensores("\"tmp\"", "\"27\"", "\"2020-5-6 9:22:02\"");
 		 fm.filtrarTemperatura(ms9); 
-		 MedicoesSensores ms10 = new MedicoesSensores("\"tmp\"", "\"30\"", "\"2020-5-6 9:22:02\"");
-		 fm.filtrarTemperatura(ms10); 
+		 MedicoesSensores ms10 = new MedicoesSensores("\"tmp\"", "\"41\"", "\"2020-5-6 9:22:02\"");
+		 fm.filtrarTemperatura(ms10);
 
 	}
 }
