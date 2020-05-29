@@ -87,6 +87,7 @@ public class FiltrarMensagens {
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastHumidades);
+			System.out.println("media: " + mediaLast(lastHumidades));
 			JavaMysql.putDataIntoMysql(medicao, mediaLast(lastHumidades));
 			System.out.println("e");
 		}
