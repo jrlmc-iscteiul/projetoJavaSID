@@ -12,10 +12,9 @@ public class FiltrarMensagens {
 
 	private Stack<Double> lastHumidades = new Stack<Double>();
 	private Stack<Double> lastTemperaturas = new Stack<Double>();
-
 	private Stack<Double> medicoesLuminosidadeAnteriores = new Stack<Double>();
+	
 	private MedicoesSensores medLuminosidadeLixo = null;
-
 	private MedicoesSensores medicaoMovAnterior = null;
 	private MedicoesSensores medicaoMovLixo = null;
 
@@ -59,11 +58,11 @@ public class FiltrarMensagens {
 	}
 
 	public void filtrarTemperatura(MedicoesSensores medicao) {
-		if(lastTemperaturas.size() < 1) {
-			inserirNaStack(medicao, lastTemperaturas);
+		if(mysqlTmp.getLastMedicoes().size() < 1) {
+			inserirNaStack(medicao, mysqlTmp.getLastMedicoes());
+			
 		}
-		System.out.println("Last temperaturas: " + lastTemperaturas);
-		List<Double> limites = outliers(lastTemperaturas, lastTemperaturas.size());
+		List<Double> limites = outliers(mysqlTmp.getLastMedicoes(), mysqlTmp.getLastMedicoes().size());
 		String v = medicao.getValorMedicao();
 		System.out.println("Valor que chegou: " + v);
 		double valor = Double.parseDouble(v.replace("\"", ""));
@@ -72,10 +71,9 @@ public class FiltrarMensagens {
 			System.out.println("lixo");
 		} else {
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			inserirNaStack(medicao, lastTemperaturas);
-			mysqlTmp.putDataIntoMysql(medicao, mediaLast(lastTemperaturas), cloudToMongo.mongocolTmp);
+			mysqlTmp.putDataIntoMysql(medicao, cloudToMongo.mongocolTmp);
 			System.out.println("Temp foi aceite");
-			System.out.println("Last temperaturas atualizado : " + lastTemperaturas);
+			System.out.println("Last temperaturas atualizado : " + mysqlTmp.getLastMedicoes());
 		}
 	}
 	
@@ -92,7 +90,6 @@ public class FiltrarMensagens {
 		if(lastHumidades.size() < 1) {
 			inserirNaStack(medicao, lastHumidades);
 		}
-		System.out.println("Last humidades: " + lastHumidades);
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
 		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
@@ -102,7 +99,7 @@ public class FiltrarMensagens {
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastHumidades);
-			mysqlHum.putDataIntoMysql(medicao,mediaLast(lastHumidades), cloudToMongo.mongocolHum);
+			mysqlHum.putDataIntoMysql(medicao, cloudToMongo.mongocolHum);
 			System.out.println("Hum foi aceite");
 			System.out.println("Last humidades atualizado : " + lastHumidades);
 		}
@@ -130,14 +127,14 @@ public class FiltrarMensagens {
 			} else if (valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 1 && haMovimento) {
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovLixo.toString())));
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-				mysqlMov.putDataIntoMysql(medicaoMovLixo, 0, cloudToMongo.mongocolMov); // mudar valor media
-				mysqlMov.putDataIntoMysql(medicaoMovAtual, 0, cloudToMongo.mongocolMov); // mudar valor media
+				mysqlMov.putDataIntoMysql(medicaoMovLixo, cloudToMongo.mongocolMov); // mudar valor media
+				mysqlMov.putDataIntoMysql(medicaoMovAtual, cloudToMongo.mongocolMov); // mudar valor media
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medicaoMovLixo.getData() + "}, {mov:" + medicaoMovLixo.getValorMedicao() + "}]}")));
 				medicaoMovAnterior = medicaoMovAtual;
 			}
 		} else { // movimentoAnterior == null
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-			mysqlMov.putDataIntoMysql(medicaoMovAtual, 0, cloudToMongo.mongocolMov); // mudar valor media
+			mysqlMov.putDataIntoMysql(medicaoMovAtual, cloudToMongo.mongocolMov); // mudar valor media
 			medicaoMovAnterior = medicaoMovAtual;
 		}
 	}
@@ -163,7 +160,7 @@ public class FiltrarMensagens {
 				System.out.println("1º if");
 
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				mysqlLum.putDataIntoMysql(medicaoAtual, 0, cloudToMongo.mongocolLum); // mudar valor media
+				mysqlLum.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 
 				atualizarStackLuminosidade(medicaoAtual);
 				haLuminosidade = false;
@@ -178,7 +175,7 @@ public class FiltrarMensagens {
 				medLuminosidadeLixo = medicaoAtual;
 
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-				mysqlLum.putDataIntoMysql(medicaoAtual, 0, cloudToMongo.mongocolLum); // mudar valor media
+				mysqlLum.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo - 10) <= valorMedicaoAtual)) {
 				
@@ -187,8 +184,8 @@ public class FiltrarMensagens {
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
 
-				mysqlLum.putDataIntoMysql(medLuminosidadeLixo, 0, cloudToMongo.mongocolLum); // mudar valor media
-				mysqlLum.putDataIntoMysql(medicaoAtual, 0, cloudToMongo.mongocolLum); // mudar valor media
+				mysqlLum.putDataIntoMysql(medLuminosidadeLixo, cloudToMongo.mongocolLum); // mudar valor media
+				mysqlLum.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 
 				atualizarStackLuminosidade(medLuminosidadeLixo);
 				atualizarStackLuminosidade(medicaoAtual);
@@ -198,7 +195,7 @@ public class FiltrarMensagens {
 		} else { 
 			
 			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-			mysqlLum.putDataIntoMysql(medicaoAtual, 0, cloudToMongo.mongocolLum); //mudar valor media
+			mysqlLum.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); //mudar valor media
 			atualizarStackLuminosidade(medicaoAtual);
 		}
 	}
