@@ -60,19 +60,16 @@ public class EnviarDadosBroker implements MqttCallback {
 		Double valorBefore = 60.0 ;
 		
 		while (true) {
-			DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-			Date now = new Date();
-			String data = dateFormat.format(now);
+			
 			Random r = new Random();
 			valorBefore = valorBefore + r.nextDouble() * 4;
 			int valor = valorBefore.intValue();
 			//DecimalFormat df = new DecimalFormat("#.#");
 			//String valor = df.format(valorBefore);
 			//valor = valor.replace(",", ".");
-
-			
-			String res = new String("{\"tmp\":\"19.5\",\"hum\":\"35.0\",\"dat\":\"" + data
-					+ "\",\"tim\":\"14:09:24\",\"cell\":\"" + valor + "\",\"mov\":\"1\",\"sens\":\"eth\"}");
+						
+			String res = new String("{\"tmp\":\"19.5\",\"hum\":\"35.0\",\"dat\":\"" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+					+ "\",\"tim\":\"" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "\",\"cell\":\"" + valor + "\",\"mov\":\"1\",\"sens\":\"eth\"}");
 			System.out.println(res);
 			
 			this.publishSensor(res);
