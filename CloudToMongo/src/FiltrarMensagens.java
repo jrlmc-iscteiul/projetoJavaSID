@@ -56,19 +56,21 @@ public class FiltrarMensagens {
 		if(lastTemperaturas.size() < 1) {
 			inserirNaStack(medicao, lastTemperaturas);
 		}
+		
 		List<Double> limites = outliers(lastTemperaturas, lastTemperaturas.size());
+		
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
 		
 		if(valor < limites.get(0) || valor > limites.get(1)) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
-			System.out.println("lixo");
+			System.out.println("lixo tmp");
 			
 		} else {
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastTemperaturas);
 			JavaMysql.putDataIntoMysql(medicao, mediaLast(lastTemperaturas));
-			System.out.println("bom");
+			System.out.println("bom tmp");
 		}
 	}
 
@@ -76,20 +78,23 @@ public class FiltrarMensagens {
 		if(lastHumidades.size() < 1) {
 			inserirNaStack(medicao, lastHumidades);
 		}
+		
+		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
+		
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
-		List<Double> limites = outliers(lastHumidades, lastHumidades.size());
 		
 		if(valor < limites.get(0) || valor > limites.get(1) || valor < 0 || valor > 100) {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			
-			System.out.println("lixo");
+			System.out.println("lixo hum");
+			
 		} else {
 			cloudToMongo.mongocolHum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			inserirNaStack(medicao, lastHumidades);
 			System.out.println("media: " + mediaLast(lastHumidades));
 			JavaMysql.putDataIntoMysql(medicao, mediaLast(lastHumidades));
-			System.out.println("e");
+			System.out.println("bom hum");
 		}
 	}
 

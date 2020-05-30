@@ -57,19 +57,19 @@ public class EnviarDadosBroker implements MqttCallback {
 
 	public void writeSensor() {
 
-		Double valorBefore = 60.0 ;
+		Double valorBefore = 10.0 ;
 		
 		while (true) {
 			
 			Random r = new Random();
-			valorBefore = valorBefore + r.nextDouble() * 4;
-			int valor = valorBefore.intValue();
-			//DecimalFormat df = new DecimalFormat("#.#");
-			//String valor = df.format(valorBefore);
-			//valor = valor.replace(",", ".");
+			valorBefore = valorBefore + r.nextDouble() * 3;
+			//int valor = valorBefore.intValue();
+			DecimalFormat df = new DecimalFormat("#.#");
+			String valor = df.format(valorBefore);
+			valor = valor.replace(",", ".");
 						
-			String res = new String("{\"tmp\":\"19.5\",\"hum\":\"35.0\",\"dat\":\"" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-					+ "\",\"tim\":\"" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "\",\"cell\":\"" + valor + "\",\"mov\":\"1\",\"sens\":\"eth\"}");
+			String res = new String("{\"tmp\":\"" + valor + "\",\"hum\":\"56\",\"dat\":\"" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+					+ "\",\"tim\":\"" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "\",\"cell\":\"60\",\"mov\":\"0\",\"sens\":\"eth\"}");
 			System.out.println(res);
 			
 			this.publishSensor(res);
