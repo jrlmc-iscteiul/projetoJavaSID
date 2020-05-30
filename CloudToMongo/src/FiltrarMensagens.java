@@ -70,10 +70,10 @@ public class FiltrarMensagens {
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			System.out.println("lixo");
 		} else {
+			System.out.println("Temp foi aceite");
 			cloudToMongo.mongocolTmp.insert((DBObject) JSON.parse(cloudToMongo.clean(medicao.toString())));
 			mysqlTmp.putDataIntoMysql(medicao, cloudToMongo.mongocolTmp);
-			System.out.println("Temp foi aceite");
-			System.out.println("Last temperaturas atualizado : " + mysqlTmp.getLastMedicoes());
+//			System.out.println("Last temperaturas atualizado : " + mysqlTmp.getLastMedicoes());
 		}
 	}
 	

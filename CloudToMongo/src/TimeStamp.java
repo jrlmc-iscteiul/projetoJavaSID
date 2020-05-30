@@ -22,7 +22,7 @@ public class TimeStamp {
 	}
 	
 	public long toMiliseconds(String myDate) throws ParseException {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date date = sdf.parse(myDate);
 		long millis = date.getTime();
 		return millis;
@@ -78,11 +78,11 @@ public class TimeStamp {
 
 	@Override
 	public String toString() {
-		return (ano + "/" + mes + "/" + dia + " " + hora + ":" + minuto + ":" + segundo);
+		return (ano + "-" + String.format("%02d", mes) + "-" + String.format("%02d", dia) + " " + String.format("%02d", hora) + ":" + String.format("%02d", minuto) + ":" + String.format("%02d", segundo));
 	}
 	
 	public static void main(String[] args) throws ParseException {
-		TimeStamp t = new TimeStamp(2020, 5, 26, 1, 8, 45);
+		TimeStamp t = new TimeStamp(2020, 5, 29, 22, 5, 31);
 		System.out.println(t.toString());
 		System.out.println(t.toMiliseconds(t.toString()));
 	}	

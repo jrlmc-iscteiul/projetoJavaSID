@@ -69,7 +69,7 @@ public class MedicoesSensores {
 		hora = hora.replace("\"", "");
 		String[] dat = data.split("/");
 		String[] hor = hora.split(":");
-		time = new TimeStamp(Integer.parseInt(dat[0]), Integer.parseInt(dat[1]), Integer.parseInt(dat[2]), Integer.parseInt(hor[0]), Integer.parseInt(hor[1]), Integer.parseInt(hor[2]));
+		time = new TimeStamp(Integer.parseInt(dat[2]), Integer.parseInt(dat[1]), Integer.parseInt(dat[0]), Integer.parseInt(hor[0]), Integer.parseInt(hor[1]), Integer.parseInt(hor[2]));
 		String[] dataParts = data.split("/");
 		String timestamp = new String("\"" + dataParts[2] + "-" + dataParts[1] + "-" + dataParts[0] + " " + hora + "\"");
 		return timestamp;
@@ -93,7 +93,7 @@ public class MedicoesSensores {
 
 	}
 
-	public static TimeStamp getTime() {
+	public TimeStamp getTime() {
 		return time;
 	}
 }

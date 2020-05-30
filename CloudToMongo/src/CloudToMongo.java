@@ -105,7 +105,7 @@ public class CloudToMongo implements MqttCallback {
 	@Override
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
 		try {
-			System.out.println(c.toString());
+			System.out.println("\n" + c.toString());
 
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
 			

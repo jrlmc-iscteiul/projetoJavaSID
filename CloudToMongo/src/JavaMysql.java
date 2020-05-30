@@ -33,7 +33,7 @@ public class JavaMysql {
 		int maxIdCliente = 0;
 		database_password = "";
 		database_user = "root";
-		database_connection = "jdbc:mysql://localhost/fff";
+		database_connection = "jdbc:mysql://localhost/rrr";
 		
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -50,20 +50,30 @@ public class JavaMysql {
 		
 		try {
 			if(falhou) {
+				falhou = false;
 				System.out.println("Mysql voltou a funcionar");
-				DBCursor cursor = getMedicoesSince(time.toMiliseconds(time.toString()), coll);
+				DBCursor cursor = getMedicoesSince(coll, medicao.getTime().toString());
+				int i = cursor.size();
+				System.out.println("Medicoes falhadas: " + i);
 				while (cursor.hasNext()) {
 					DBObject obj = cursor.next();
-					MedicoesSensores med = new MedicoesSensores(tipoSensor, (String) obj.get(tipoSensor), (String) obj.get("dat"));
-					inserirNaStack(medicao, lastMedicoes);
-					coloca(SqlCommando, result, med, mediaLast(lastMedicoes));
+					System.out.println(i--);
+					MedicoesSensores med = new MedicoesSensores(new String("\"" + tipoSensor + "\""), new String("\"" + (String) obj.get(tipoSensor) + "\""), new String("\"" + (String) obj.get("dat") + "\""));
+					if(tipoSensor.contentEquals("tmp") || tipoSensor.contentEquals("hum")) {
+						Statement ss = conn.createStatement();
+						inserirNaStack(med, lastMedicoes);
+						coloca(SqlCommando, result, med, mediaLast(lastMedicoes), ss);
+						System.out.println("msg enviadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+						ss.close();
+					}
+					else {
+						coloca(SqlCommando, result, med, 0, s);
+					}
 				}
 			}
-			falhou = false;
 			s = conn.createStatement();
-			
-			coloca(SqlCommando, result, medicao, mediaLast(lastMedicoes));
 			inserirNaStack(medicao, lastMedicoes);
+			coloca(SqlCommando, result, medicao, mediaLast(lastMedicoes), s);
 			s.close();
 			System.out.println("Passou para o MySQL");
 		} catch (Exception e) {
@@ -71,15 +81,16 @@ public class JavaMysql {
 		}
 	}
 	
-	private static void coloca(String SqlCommando, int result, MedicoesSensores medicao, double media) throws SQLException {
+	private static void coloca(String SqlCommando, int result, MedicoesSensores medicao, double media, Statement ss) throws SQLException {
 		SqlCommando = "Insert into medicoessensores (IDMedicao, ValorMedicao, TipoSensor, DataHoraMedicao, MediaUltimasMedicoes) "
 				+ "values (NULL, " + medicao.getValorMedicao() + ", " + medicao.getTipoSensor() + ", " + medicao.getData() + ", " + media + ");" ;
-		
-		result = new Integer(s.executeUpdate(SqlCommando));
+		result = new Integer(ss.executeUpdate(SqlCommando));
 	}
  
-	private DBCursor getMedicoesSince(long millis, DBCollection coll) {
-		DBCursor cursor = coll.find((DBObject)JSON.parse(new String("{_id:{$gt: ObjectId(Math.floor((new Date(" + millis + "))/1000).toString(16) + \"0000000000000000\")}})")));
+	private DBCursor getMedicoesSince(DBCollection coll, String dataAtual) {
+		System.out.println("Ligação falhou às: " + time.toString());
+		System.out.println("Ligação voltou às: " + dataAtual);
+		DBCursor cursor = coll.find((DBObject)JSON.parse(new String("{dat: {$gte: \"" + time.toString() + "\", $lt: \"" + dataAtual + "\"}}")));
 		return cursor;
 	}
 	
