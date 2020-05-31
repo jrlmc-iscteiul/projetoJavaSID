@@ -94,7 +94,8 @@ public class FiltrarMensagens {
 	 * 		Para isso, comparamos o valor da medição atual com a medição anterior, vemos que é um 1 seguido de um 0, colocamos o boolean a false e a medição atual vai para a coleção movimento
 	 * 2ª:  Se o valor seguinte for 1, então quer dizer que o 1 que foi para a coleção msgsDescartadas, foi colocado lá erradamente e tem de ser tirado e colocada na coleção movimento
 	 * 		Para isso devemos, comparar o valor da medição anterior com o atual, ver se o boolean está a true, o que quer dizer que é preciso ir tirar uma medição da coleção msgsDescartadas
-	 * 		Colocamos a medição atual e a anterior no MongoDB através da função de insert() e removemos a medição anterior da coleção msgsDescartadas com o comando findAndRemove()
+	 * 		Colocamos a medição atual e a anterior no MongoDB e removemos a medição anterior da coleção msgsDescartadas com o comando findAndRemove()
+	 * As mensagens são colocadas nas coleções correspondentes através do comando insert() 
 	 * Sempre que as medições forem colocadas no MongoDB também o são no Mysql através do método offer() à BlockingQueue
 	 * Na primeira medição de todas a ser colocada, como não há medição anterior esta é colocada sempre na coleção movimento
 	 */
@@ -143,6 +144,25 @@ public class FiltrarMensagens {
 		}
 	}
 
+	
+	/*
+	 * Método que irá avaliar as medições do movimento, quais as medições que devem ou não ser descartadas
+	 * Medições com valores abaixo de 0 serão descartados
+	 * Existe um boolean "haLuminosidade" para quando uma mensagem for colocada na coleção msgsDescartadas
+	 * Existe um stack com as duas medições anteriores à medição atual para compararmos o aumento dos valores e perceber se a medição atual tem um valor adequado ou se é um erro do sensor
+	 * Enquanto o stack não tem tamanho 2, as medições são colocadas na coleção luminosidade do MongoDB
+	 * Quando o stack tem tamanho 2, quando é recebido um valor, averigua-se se a variação entre as últimas duas medições e a variação entre a última medição e a atual
+	 * Existem três tipos de situação neste caso:
+	 * 		1º: Quando a variação entre as últimas duas medições anteriores é menos que 10 e a variação entre o valor atual e a última medição é maior que 50
+	 * 			Nesse caso, a mensagem atual é posta na coleção msgsDescartadas e o boolean é colocado a true
+	 * 		2º: Quando o boolean haLuminosidade está a true e a variação entre a mensagem colocada na coleção msgsDescartadas e a medição atual for menor que 10
+	 * 			Então a mensagem que estava na coleção msgsDescartadas é recuperada, e tanto esta mensagem como a mensagem atual são colocadas na coleção luminosidade
+	 * 			Para recuperar a mensagem é usada o método findAndRemove() que vai procurar no MongoDB a mensagem que tem a data e hora correspondentes à mensagem que foi coloca nas msgsDescartadas
+	 * 		3º: Todas as situações que não são descritas acima e sempre que o haLuminosidade estiver a false, as mensagens são colocadas na coleção luminosidade
+	 * 	As mensagens são colocadas nas coleções correspondentes através do comando insert() 
+	 * Sempre que as medições forem colocadas no MongoDB também o são no Mysql através do método offer() à BlockingQueue
+	 * No final de cada if ou else if é atualizado o stack da luminosidade para este ter sempre as últimas duas medições, usa-se para isso o método atualizarStackLuminosidade()
+	 */
 	public void filtrarLuminosidade(MedicoesSensores medicaoAtual) throws InterruptedException {
 		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
 		
@@ -187,7 +207,7 @@ public class FiltrarMensagens {
 				haLuminosidade = false;
 				System.out.println("Luminosidade aceite e medição anterior recuperada");
 			}
-		} else { 
+		} else { 											//medicoesLuminosidadeAnteriores.size < 2
 			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 			cloudToMongo.mysql.getBq().offer(medicaoAtual);
 			atualizarStackLuminosidade(medicaoAtual);
