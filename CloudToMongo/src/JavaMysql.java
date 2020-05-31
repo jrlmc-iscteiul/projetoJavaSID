@@ -29,7 +29,7 @@ public class JavaMysql {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(database_connection + "?useTimezone=true&serverTimezone=UTC", database_user, database_password);
-			System.out.println("Connected");
+			System.out.println("Connected to mysql");
 		} catch (Exception e) {
 			System.out.println("Server down, unable to make the connection. ");
 		}

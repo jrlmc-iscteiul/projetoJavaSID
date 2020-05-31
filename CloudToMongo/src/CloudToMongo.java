@@ -47,7 +47,6 @@ public class CloudToMongo implements MqttCallback {
 	static JavaMysql mysql;
 
 	public static void main(String[] args) {
-		
 		try {
 			Properties p = new Properties();
 			p.load(new FileInputStream("cloudToMongo.ini"));
@@ -76,8 +75,6 @@ public class CloudToMongo implements MqttCallback {
 		while(true) {
 			mysql.putDataIntoMysql();
 		}
-		
-		
 	}
 
 	public void connecCloud() {
@@ -117,29 +114,24 @@ public class CloudToMongo implements MqttCallback {
 	public void messageArrived(String topic, MqttMessage c) throws Exception {
 		try {
 			System.out.println("\n" + c.toString());
-
 			List<MedicoesSensores> medicoes = MedicoesSensores.criarMedicao(c.toString());
-			
+			System.out.println("Mensagens divididas");
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
 						filtro.filtrarTemperatura(medicao);
 					}
-
 					if (medicao.getTipoSensor().equals("\"hum\"")) {
 						filtro.filtrarHumidade(medicao);
 					}
-
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
 						filtro.luminosidade(medicao);
 					}
-
 					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
 						filtro.movimento(medicao);
 					}
 				}
 			}
-
 		} catch (Exception e) {
 			System.out.println(e);
 		}
@@ -155,7 +147,6 @@ public class CloudToMongo implements MqttCallback {
 
 	public String clean(String message) {
 		return (message.replaceAll("\"\"", "\","));
-
 	}
 
 }
