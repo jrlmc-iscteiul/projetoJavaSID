@@ -91,7 +91,6 @@ public class EnviarDadosBroker implements MqttCallback {
 		} catch (MqttException var3) {
 			var3.printStackTrace();
 		}
-
 	}
 
 	@Override

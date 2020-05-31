@@ -24,7 +24,7 @@ public class JavaMysql {
 		String database_connection = new String();
 		database_password = "";
 		database_user = "root";
-		database_connection = "jdbc:mysql://localhost/rrr";
+		database_connection = "jdbc:mysql://localhost/mysql_main_g5";
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection(database_connection + "?useTimezone=true&serverTimezone=UTC", database_user, database_password);

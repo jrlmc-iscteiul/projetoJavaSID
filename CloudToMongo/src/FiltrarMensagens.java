@@ -78,8 +78,14 @@ public class FiltrarMensagens {
 	}
 
 	public void movimento(MedicoesSensores medicaoMovAtual) throws InterruptedException {
+		
 		Double valorMedicaoMovAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoMovAtual);
 		Double valorMedicaoMovAnterior;
+		
+		if(valorMedicaoMovAtual != 0 || valorMedicaoMovAtual != 1) {
+			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
+			return;
+		}
 		
 		if (medicaoMovAnterior != null) {
 			
@@ -130,15 +136,20 @@ public class FiltrarMensagens {
 	}
 
 	public void luminosidade(MedicoesSensores medicaoAtual) throws InterruptedException {
+		
+		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
+		
+		if(valorMedicaoAtual < 0) {
+			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
+			return;
+		}
+			
 		Double valorMedLuminosidadeLixo = null;
+		
 		if (medLuminosidadeLixo != null)
 			valorMedLuminosidadeLixo = MedicoesSensores.tirarAspasValorMedicao(medLuminosidadeLixo);
 
-		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
-
 		if (medicoesLuminosidadeAnteriores.size() == 2) {
-			
-//			System.out.println("mediçoes anteriores: " + medicoesLuminosidadeAnteriores.toString());
 
 			if (((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10))
 					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50))
@@ -146,7 +157,6 @@ public class FiltrarMensagens {
 					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50)) ) {	
 
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-//				mysql.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
 
 				atualizarStackLuminosidade(medicaoAtual);
@@ -155,39 +165,32 @@ public class FiltrarMensagens {
 			}
 
 			if ((medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) <= Math.abs(10)
-					&& ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50)
-							&& !haLuminosidade)) {
-//				
+					&& ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50) && !haLuminosidade)) {
 				
 				haLuminosidade = true;
 				medLuminosidadeLixo = medicaoAtual;
 
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-//				mysql.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
 				System.out.println("Luminosidade descartada");
 
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo - 10) <= valorMedicaoAtual)) {
-				
-//				System.out.println("3º if");
-				
+
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
 
-//				mysql.putDataIntoMysql(medLuminosidadeLixo, cloudToMongo.mongocolLum); // mudar valor media
-//				mysql.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); // mudar valor media
 				cloudToMongo.mysql.getBq().offer(medLuminosidadeLixo);
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
 
 				atualizarStackLuminosidade(medLuminosidadeLixo);
 				atualizarStackLuminosidade(medicaoAtual);
+				
 				haLuminosidade = false;
 				System.out.println("Luminosidade aceite");
 			}
 		} else { 
 			
 			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
-//			mysql.putDataIntoMysql(medicaoAtual, cloudToMongo.mongocolLum); //mudar valor media
 			cloudToMongo.mysql.getBq().offer(medicaoAtual);
 			atualizarStackLuminosidade(medicaoAtual);
 			System.out.println("Luminosidade aceite");
