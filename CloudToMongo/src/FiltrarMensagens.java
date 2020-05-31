@@ -146,7 +146,7 @@ public class FiltrarMensagens {
 
 	
 	/*
-	 * Método que irá avaliar as medições do movimento, quais as medições que devem ou não ser descartadas
+	 * Método que irá avaliar as medições da luminosidade, quais as medições que devem ou não ser descartadas
 	 * Medições com valores abaixo de 0 serão descartados
 	 * Existe um boolean "haLuminosidade" para quando uma mensagem for colocada na coleção msgsDescartadas
 	 * Existe um stack com as duas medições anteriores à medição atual para compararmos o aumento dos valores e perceber se a medição atual tem um valor adequado ou se é um erro do sensor
