@@ -40,10 +40,14 @@ public class CloudToMongo implements MqttCallback {
 
 	private int lastSegundo;
 
-	FiltrarMensagens filtrarMensagens = new FiltrarMensagens(this);
+	FiltrarMensagens filtro = new FiltrarMensagens(this);
+	
+	BloquingQueue<MedicoesSensores> bq = new BloquingQueue<>();
+	
+	static JavaMysql mysql;
 
 	public static void main(String[] args) {
-
+		
 		try {
 			Properties p = new Properties();
 			p.load(new FileInputStream("cloudToMongo.ini"));
@@ -67,6 +71,13 @@ public class CloudToMongo implements MqttCallback {
 		}
 		new CloudToMongo().connecCloud();
 		new CloudToMongo().connectMongo();
+		
+		mysql = new JavaMysql();
+		while(true) {
+			mysql.putDataIntoMysql();
+		}
+		
+		
 	}
 
 	public void connecCloud() {
@@ -112,19 +123,19 @@ public class CloudToMongo implements MqttCallback {
 			for (MedicoesSensores medicao : medicoes) {
 				if (verificaDuplicados(medicao)) {
 					if (medicao.getTipoSensor().equals("\"tmp\"")) {
-						filtrarMensagens.filtrarTemperatura(medicao);
+						filtro.filtrarTemperatura(medicao);
 					}
 
 					if (medicao.getTipoSensor().equals("\"hum\"")) {
-//						filtrarMensagens.filtrarHumidade(medicao);
+						filtro.filtrarHumidade(medicao);
 					}
 
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
-//						filtrarMensagens.luminosidade(medicao);
+						filtro.luminosidade(medicao);
 					}
 
 					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-//						filtrarMensagens.movimento(medicao);
+						filtro.movimento(medicao);
 					}
 				}
 			}

@@ -7,6 +7,7 @@ public class MedicoesSensores {
 	private String valorMedicao;
 	private String data;
 	private static TimeStamp time;
+	private double media = 0;
 
 	public MedicoesSensores(String tipoSensor, String valorMedicao, String data) {
 		super();
@@ -95,5 +96,13 @@ public class MedicoesSensores {
 
 	public TimeStamp getTime() {
 		return time;
+	}
+
+	public double getMedia() {
+		return media;
+	}
+
+	public void setMedia(double media) {
+		this.media = media;
 	}
 }
