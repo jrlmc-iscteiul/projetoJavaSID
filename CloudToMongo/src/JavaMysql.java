@@ -1,12 +1,6 @@
 
 import java.sql.*;
 import java.time.LocalTime;
-import java.util.Stack;
-
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.util.JSON;
 
 public class JavaMysql {
 	
@@ -22,26 +16,6 @@ public class JavaMysql {
 	public BloquingQueue<MedicoesSensores> getBq() {
 		return bq;
 	}
-
-//	public void getMsgsFalhadas(MedicoesSensores medicao, DBCollection coll) throws SQLException, InterruptedException {
-//		String SqlCommando = new String();
-//		int result = 0;
-//		falhou = false;
-//		System.out.println("Mysql voltou a funcionar");
-//		DBCursor cursor = getMedicoesSince(coll, medicao.getTime().toString());
-//		System.out.println("Medicoes falhadas: " + cursor.size());
-//		while (cursor.hasNext()) {
-//			DBObject obj = cursor.next();
-//			MedicoesSensores med = new MedicoesSensores(new String("\"" + tipoSensor + "\""), new String("\"" + (String) obj.get(tipoSensor) + "\""), new String("\"" + (String) obj.get("dat") + "\""));
-//			if (tipoSensor.contentEquals("tmp") || tipoSensor.contentEquals("hum")) {
-//				bq.offer(med);
-//				System.out.println("msg enviadaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//			} else {
-//				bq.offer(med);
-//			}
-//		}
-//
-//	}
 	
 	public void putDataIntoMysql() {
 		String SqlCommando = new String();
@@ -78,23 +52,6 @@ public class JavaMysql {
 		System.out.println("Mensagem inserida: " + medicao);
 	}
  
-//	private DBCursor getMedicoesSince(DBCollection coll, String dataAtual) {
-//		System.out.println("Ligação falhou às: " + time.toString());
-//		System.out.println("Ligação voltou às: " + dataAtual);
-//		DBCursor cursor = coll.find((DBObject)JSON.parse(new String("{dat: {$gte: \"" + time.toString() + "\", $lt: \"" + dataAtual + "\"}}")));
-//		return cursor;
-//	}
-	
-	
-	private void inserirNaStack(MedicoesSensores medicao, Stack<Double> last) {
-		String v = medicao.getValorMedicao();
-		double valor = Double.parseDouble(v.replace("\"", ""));
-		last.push(valor);
-		if (last.size() > 30) {
-			last.remove(last.firstElement());
-		}
-		System.out.println(last);
-	}
 
 	public static void main(String[] args) {
 //		String s = new String("{\"tmp\":\"19.30\",\"hum\":\"95.00\",\"dat\":\"19/4/2020\",\"tim\":\"9:50:51\",\"cell\":\"228\"\"mov\":\"0\"\"mov\":\"1\",\"sens\":\"eth\"}");
