@@ -21,13 +21,14 @@ public class FiltrarMensagens {
 	
 	private boolean haLuminosidade;
 	private boolean haMovimento;
-	
-//	private JavaMysql mysql = new JavaMysql();
 
 	public FiltrarMensagens(CloudToMongo cloudToMongo) {
 		this.cloudToMongo = cloudToMongo;
 	}
 
+	
+	//Para o cálculo dos outliers definimos a utilização das ultimas medições, pelo que a Stack é limitada a 30 valores, 
+	//pelo que a Stack é limitada a 30 valores e sempre que chega um novo valor é colocado na frente de fila retirando o valor mais antigo
 	private void inserirNaStack(MedicoesSensores medicao, Stack<Double> last) {
 		String v = medicao.getValorMedicao();
 		double valor = Double.parseDouble(v.replace("\"", ""));
@@ -37,6 +38,10 @@ public class FiltrarMensagens {
 		}
 	}
 
+	//Método que faz a filtragem da temperatura. São utilizadas Stacks para guardar apenas os ultimos 30 valores de medições, do tipo Double,
+	//por ordem de chegada, para serem utilizados para calcular o valor dos outliers e a média das variações
+	//Caso o valor esteja fora dos limites dos outliers será colocado na coleção das mensagens descartadas e caso seja aceite,
+	//é colocado na Stack das ultimas medições, na respetiva coleção mongo e da BloquingQueue onde vai esperar para ser retirada e enviada para o mysql.
 	public void filtrarTemperatura(MedicoesSensores medicao) throws InterruptedException {
 		if(lastTemperaturas.size() < 1) {
 			inserirNaStack(medicao, lastTemperaturas);
@@ -57,6 +62,7 @@ public class FiltrarMensagens {
 		}
 	}
 
+	//Método que faz a filtragem dos valores de humidade. Estrutura semelhante à do filtro da temperatura
 	public void filtrarHumidade(MedicoesSensores medicao) throws InterruptedException {
 		if(lastHumidades.size() < 1) {
 			inserirNaStack(medicao, lastHumidades);
@@ -197,6 +203,12 @@ public class FiltrarMensagens {
 		}
 	}
 
+	
+	//Esta função vai receber a Stack das últimas medições e ordená-la por valores utilizando uma Stack auxiliar. 
+	//Depois são calculados os quartis Q1 e Q3, para calcular o desvio-quartil AIQ.
+	//A partir de Q1, Q3 e AIQ são calculados os valores limite para aceitar as medicões,
+	//utilizando um multiplicador diferente que tem em conta a amplitude dos valores na Stack ordenada
+	//e o facto de a variação poder ser exponencial
 	public List<Double> outliers(Stack<Double> last, int size) {
 		Stack<Double> copy = new Stack<Double>();
 		copy.addAll(last);
@@ -259,6 +271,7 @@ public class FiltrarMensagens {
 		}
 	}
 	
+	//Para cálculo da média das variações dos ultimos 30 valores
 	private double mediaLast(Stack<Double> last) {
 		double sum = 0;
 		for (int i = 1; i < last.size(); i++) {

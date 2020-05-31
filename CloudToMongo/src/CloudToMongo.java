@@ -41,9 +41,7 @@ public class CloudToMongo implements MqttCallback {
 	private int lastSegundo;
 
 	FiltrarMensagens filtro = new FiltrarMensagens(this);
-	
-	//BlockingQueue<MedicoesSensores> bq = new BlockingQueue<>();
-	
+
 	static JavaMysql mysql;
 
 	public static void main(String[] args) {
@@ -71,6 +69,8 @@ public class CloudToMongo implements MqttCallback {
 		new CloudToMongo().connecCloud();
 		new CloudToMongo().connectMongo();
 		
+		
+		//Assegura que caso a ligação ao mysql falhe, a aplicação continua a tentar efetuar a ligação
 		mysql = new JavaMysql();
 		while(true) {
 			mysql.putDataIntoMysql();
@@ -102,6 +102,7 @@ public class CloudToMongo implements MqttCallback {
 	}
 
 
+	//Compara o segundo em que chegou a ultima medição com a nova medição
 	public boolean verificaDuplicados(MedicoesSensores medicao) {
 		if(medicao.getTime().getSegundo() != lastSegundo) {
 			return true;

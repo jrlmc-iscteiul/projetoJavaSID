@@ -16,6 +16,7 @@ public class JavaMysql {
 		return bq;
 	}
 	
+	//Método que tenta efetuar a ligação ao mysql, e caso seja bem sucedido irá enviar a próxima mensagem que está na BloquingQueue
 	public void putDataIntoMysql() {
 		String SqlCommando = new String();
 		int result = 0;
