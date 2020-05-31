@@ -42,6 +42,7 @@ public class FiltrarMensagens {
 	//por ordem de chegada, para serem utilizados para calcular o valor dos outliers e a média das variações
 	//Caso o valor esteja fora dos limites dos outliers será colocado na coleção das mensagens descartadas e caso seja aceite,
 	//é colocado na Stack das ultimas medições, na respetiva coleção mongo e da BloquingQueue onde vai esperar para ser retirada e enviada para o mysql.
+	
 	public void filtrarTemperatura(MedicoesSensores medicao) throws InterruptedException {
 		if(lastTemperaturas.size() < 1) {
 			inserirNaStack(medicao, lastTemperaturas);
@@ -82,8 +83,22 @@ public class FiltrarMensagens {
 			cloudToMongo.mysql.getBq().offer(medicao);	
 		}
 	}
-
-	public void movimento(MedicoesSensores medicaoMovAtual) throws InterruptedException {
+	
+	/*
+	 * Método que irá avaliar as medições do movimento, quais as medições que devem ou não ser descartadas
+	 * Medições que o valor não seja 0 ou 1 serão descartadas
+	 * Quando as medições estão a 0, e é enviado um 1, esse 1 vai ser enviado para a coleção msgsDescartadas, e essa mesma medição é guardada numa variável "medicaoMovAnterior"
+	 * É também usado um boolean "haMovimento" que é posto a true quando uma medição vai para a coleção msgsDescartadas
+	 * Depois existem duas situações:
+	 * 1ª:  Se o valor seguinte for 0, então quer dizer que o 1 que foi para a coleção msgsDescartadas (medição anterior), foi colocado lá corretamente e que lá deve permanecer
+	 * 		Para isso, comparamos o valor da medição atual com a medição anterior, vemos que é um 1 seguido de um 0, colocamos o boolean a false e a medição atual vai para a coleção movimento
+	 * 2ª:  Se o valor seguinte for 1, então quer dizer que o 1 que foi para a coleção msgsDescartadas, foi colocado lá erradamente e tem de ser tirado e colocada na coleção movimento
+	 * 		Para isso devemos, comparar o valor da medição anterior com o atual, ver se o boolean está a true, o que quer dizer que é preciso ir tirar uma medição da coleção msgsDescartadas
+	 * 		Colocamos a medição atual e a anterior no MongoDB através da função de insert() e removemos a medição anterior da coleção msgsDescartadas com o comando findAndRemove()
+	 * Sempre que as medições forem colocadas no MongoDB também o são no Mysql através do método offer() à BlockingQueue
+	 * Na primeira medição de todas a ser colocada, como não há medição anterior esta é colocada sempre na coleção movimento
+	 */
+	public void filtrarMovimento(MedicoesSensores medicaoMovAtual) throws InterruptedException {
 		
 		Double valorMedicaoMovAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoMovAtual);
 		Double valorMedicaoMovAnterior;
@@ -97,43 +112,30 @@ public class FiltrarMensagens {
 			
 			valorMedicaoMovAnterior = MedicoesSensores.tirarAspasValorMedicao(medicaoMovAnterior);
 			
-			if ((valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 0)
-					|| (valorMedicaoMovAnterior == 1 && valorMedicaoMovAtual == 0)
+			if ((valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 0) || (valorMedicaoMovAnterior == 1 && valorMedicaoMovAtual == 0) 
 					|| (valorMedicaoMovAnterior == 1 && valorMedicaoMovAtual == 1)) {
-				
 				haMovimento = false;
-				
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 				cloudToMongo.mysql.getBq().offer(medicaoMovAtual);
-				
-				System.out.println("Movimento aceite");
-								
 				medicaoMovAnterior = medicaoMovAtual;
-			}
-			
-			if (valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 1 && !haMovimento) {
-				haMovimento = true;
+				System.out.println("Movimento aceite");
 				
+			} else if (valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 1 && !haMovimento) {
+				haMovimento = true;
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 				medicaoMovLixo = medicaoMovAtual;
-				
 				System.out.println("Movimento descartado");
 				
 			} else if (valorMedicaoMovAnterior == 0 && valorMedicaoMovAtual == 1 && haMovimento) {
-				
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovLixo.toString())));
 				cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
-				
 				cloudToMongo.mysql.getBq().offer(medicaoMovLixo);
 				cloudToMongo.mysql.getBq().offer(medicaoMovAtual);
-				
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medicaoMovLixo.getData() + "}, {mov:" + medicaoMovLixo.getValorMedicao() + "}]}")));
-				
 				medicaoMovAnterior = medicaoMovAtual;
-				
-				System.out.println("Movimento aceite");
+				System.out.println("Movimento aceite e recupera a medição anterior");
 			}
-		} else { // movimentoAnterior == null
+		} else { 																	// movimentoAnterior == null
 			cloudToMongo.mongocolMov.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 			cloudToMongo.mysql.getBq().offer(medicaoMovAtual);
 			medicaoMovAnterior = medicaoMovAtual;
@@ -141,8 +143,7 @@ public class FiltrarMensagens {
 		}
 	}
 
-	public void luminosidade(MedicoesSensores medicaoAtual) throws InterruptedException {
-		
+	public void filtrarLuminosidade(MedicoesSensores medicaoAtual) throws InterruptedException {
 		Double valorMedicaoAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoAtual);
 		
 		if(valorMedicaoAtual < 0) {
@@ -156,11 +157,10 @@ public class FiltrarMensagens {
 			valorMedLuminosidadeLixo = MedicoesSensores.tirarAspasValorMedicao(medLuminosidadeLixo);
 
 		if (medicoesLuminosidadeAnteriores.size() == 2) {
-
 			if (((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10))
 					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(10) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50))
 					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(10))
-					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50)) ) {	
+					|| ((medicoesLuminosidadeAnteriores.get(1) - medicoesLuminosidadeAnteriores.get(0)) <= Math.abs(50) && (valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) <= Math.abs(50)) ){	
 
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
@@ -170,32 +170,24 @@ public class FiltrarMensagens {
 				System.out.println("Luminosidade aceite");
 			}
 
-			if ((medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) <= Math.abs(10)
-					&& ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50) && !haLuminosidade)) {
-				
+			else if ((medicoesLuminosidadeAnteriores.get(1) - valorMedicaoAtual) <= Math.abs(10) && ((valorMedicaoAtual - medicoesLuminosidadeAnteriores.get(1)) > Math.abs(50) && !haLuminosidade)) {
 				haLuminosidade = true;
 				medLuminosidadeLixo = medicaoAtual;
-
 				cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
 				System.out.println("Luminosidade descartada");
-
+				
 			} else if (haLuminosidade && ((valorMedLuminosidadeLixo - 10) <= valorMedicaoAtual)) {
-
 				cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 				cloudToMongo.mongocolLixo.findAndRemove((DBObject) JSON.parse(new String("{$and: [{dat:" + medLuminosidadeLixo.getData() + "}, {mov:" + medLuminosidadeLixo.getValorMedicao() + "}]}")));
-
 				cloudToMongo.mysql.getBq().offer(medLuminosidadeLixo);
 				cloudToMongo.mysql.getBq().offer(medicaoAtual);
-
 				atualizarStackLuminosidade(medLuminosidadeLixo);
-				atualizarStackLuminosidade(medicaoAtual);
-				
+				atualizarStackLuminosidade(medicaoAtual);	
 				haLuminosidade = false;
-				System.out.println("Luminosidade aceite");
+				System.out.println("Luminosidade aceite e medição anterior recuperada");
 			}
 		} else { 
-			
 			cloudToMongo.mongocolLum.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoAtual.toString())));
 			cloudToMongo.mysql.getBq().offer(medicaoAtual);
 			atualizarStackLuminosidade(medicaoAtual);

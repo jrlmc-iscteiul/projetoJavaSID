@@ -126,10 +126,10 @@ public class CloudToMongo implements MqttCallback {
 						filtro.filtrarHumidade(medicao);
 					}
 					if (medicao.getTipoSensor().equals("\"cell\"")) {
-						filtro.luminosidade(medicao);
+						filtro.filtrarLuminosidade(medicao);
 					}
 					if (medicao.getTipoSensor().contentEquals("\"mov\"")) {
-						filtro.movimento(medicao);
+						filtro.filtrarMovimento(medicao);
 					}
 				}
 			}

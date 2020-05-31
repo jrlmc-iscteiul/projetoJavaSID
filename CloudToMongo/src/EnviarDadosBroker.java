@@ -69,7 +69,7 @@ public class EnviarDadosBroker implements MqttCallback {
 			valor = valor.replace(",", ".");
 						
 			String res = new String("{\"tmp\":\"" + valor + "\",\"hum\":\"56\",\"dat\":\"" + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-					+ "\",\"tim\":\"" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "\",\"cell\":\"60\",\"mov\":\"0\",\"sens\":\"eth\"}");
+					+ "\",\"tim\":\"" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "\",\"cell\":\"35\",\"mov\":\"0\",\"sens\":\"eth\"}");
 			System.out.println(res);
 			
 			this.publishSensor(res);
