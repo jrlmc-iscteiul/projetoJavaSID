@@ -10,10 +10,9 @@ public class JavaMysql {
 
 	CloudToMongo cloudToMongo;
 
-
-	BloquingQueue<MedicoesSensores> bq = new BloquingQueue<>();
+	BlockingQueue<MedicoesSensores> bq = new BlockingQueue<>();
 	
-	public BloquingQueue<MedicoesSensores> getBq() {
+	public BlockingQueue<MedicoesSensores> getBq() {
 		return bq;
 	}
 	

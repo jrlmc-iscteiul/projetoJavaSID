@@ -42,7 +42,7 @@ public class CloudToMongo implements MqttCallback {
 
 	FiltrarMensagens filtro = new FiltrarMensagens(this);
 	
-	BloquingQueue<MedicoesSensores> bq = new BloquingQueue<>();
+	//BlockingQueue<MedicoesSensores> bq = new BlockingQueue<>();
 	
 	static JavaMysql mysql;
 
