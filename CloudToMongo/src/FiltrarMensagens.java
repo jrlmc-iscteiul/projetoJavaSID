@@ -104,7 +104,15 @@ public class FiltrarMensagens {
 		Double valorMedicaoMovAtual = MedicoesSensores.tirarAspasValorMedicao(medicaoMovAtual);
 		Double valorMedicaoMovAnterior;
 		
-		if(valorMedicaoMovAtual != 0 || valorMedicaoMovAtual != 1) {
+		System.out.println("valor: " + valorMedicaoMovAtual);
+		
+		Integer valorAtualInt = valorMedicaoMovAtual.intValue();
+		
+		System.out.println("valor: " + valorAtualInt + " " + (valorAtualInt != 0) + " " + (valorAtualInt != 1));
+		
+		
+		if(Double.compare(valorMedicaoMovAtual, 0.0) != 0 && Double.compare(valorMedicaoMovAtual, 1.0) != 0) {
+			System.out.println("entrou no if");
 			cloudToMongo.mongocolLixo.insert((DBObject) JSON.parse(cloudToMongo.clean(medicaoMovAtual.toString())));
 			return;
 		}

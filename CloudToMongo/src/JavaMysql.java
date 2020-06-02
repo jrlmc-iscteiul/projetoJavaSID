@@ -23,8 +23,8 @@ public class JavaMysql {
 		String database_password = new String();
 		String database_user = new String();
 		String database_connection = new String();
-		database_password = "pass";
-		database_user = "javaUser";
+		database_password = "";
+		database_user = "root";
 		database_connection = "jdbc:mysql://localhost/mysql_main_g5";
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
